@@ -1,0 +1,92 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import { getCollection } from 'astro:content';
+
+const allArticles = await getCollection('articles');
+const sorted = allArticles.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const latest = sorted.slice(0, 9);
+
+const categories = [
+  { name: '税務・税制改正', icon: '📋', color: 'red' },
+  { name: '社会保険・年金', icon: '🏥', color: 'blue' },
+  { name: 'NISA・iDeCo', icon: '📈', color: 'green' },
+  { name: '不動産・住宅', icon: '🏠', color: 'orange' },
+  { name: '金融機関の動向', icon: '🏦', color: 'purple' },
+  { name: 'FP試験情報', icon: '📝', color: 'teal' },
+];
+
+const colorMap: Record<string, string> = {
+  red: 'bg-red-50 border-red-200 hover:bg-red-100 text-red-800',
+  blue: 'bg-blue-50 border-blue-200 hover:bg-blue-100 text-blue-800',
+  green: 'bg-green-50 border-green-200 hover:bg-green-100 text-green-800',
+  orange: 'bg-orange-50 border-orange-200 hover:bg-orange-100 text-orange-800',
+  purple: 'bg-purple-50 border-purple-200 hover:bg-purple-100 text-purple-800',
+  teal: 'bg-teal-50 border-teal-200 hover:bg-teal-100 text-teal-800',
+};
+---
+
+<BaseLayout title="FPのひとりごと">
+
+  <!-- ヒーローセクション -->
+  <section class="bg-gradient-to-br from-navy-800 to-navy-600 text-white rounded-2xl p-6 sm:p-10 mb-10 -mx-0">
+    <div class="max-w-2xl">
+      <p class="text-gold-400 font-semibold text-sm mb-2 tracking-wide">FP1級ファイナンシャルプランナーによる解説ブログ</p>
+      <h2 class="text-2xl sm:text-3xl font-bold leading-snug mb-3">
+        税務・年金・NISA・不動産…<br>
+        難しいお金の話を、わかりやすく。
+      </h2>
+      <p class="text-navy-100 leading-relaxed text-sm sm:text-base">
+        財務省・金融庁・厚生労働省などの公式情報をもとに、FP1級資格を持つ筆者が実務目線で解説します。
+        FP試験の勉強中の方にも、生活に役立てたい方にも、参考になる情報をお届けします。
+      </p>
+    </div>
+  </section>
+
+  <!-- カテゴリナビ -->
+  <section class="mb-10">
+    <h2 class="text-lg font-bold text-navy-800 mb-4">カテゴリから探す</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      {categories.map((cat) => (
+        <a
+          href={`/category/${cat.name}`}
+          class={`border rounded-xl p-4 flex items-center gap-3 transition-colors ${colorMap[cat.color]}`}
+        >
+          <span class="text-2xl">{cat.icon}</span>
+          <span class="font-semibold text-sm leading-tight">{cat.name}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- 最新記事 -->
+  <section>
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-bold text-navy-800">最新記事</h2>
+      <span class="text-sm text-gray-500">全{sorted.length}件</span>
+    </div>
+
+    {latest.length === 0 ? (
+      <div class="bg-white rounded-xl border border-gray-200 p-10 text-center text-gray-500">
+        <p class="text-4xl mb-3">📰</p>
+        <p>記事を準備中です。しばらくお待ちください。</p>
+      </div>
+    ) : (
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {latest.map((article) => (
+          <ArticleCard article={article} />
+        ))}
+      </div>
+    )}
+
+    {sorted.length > 9 && (
+      <div class="text-center mt-6">
+        <a href="/articles" class="inline-block px-6 py-2 border-2 border-navy-700 text-navy-700 rounded-lg font-semibold hover:bg-navy-700 hover:text-white transition-colors">
+          もっと見る
+        </a>
+      </div>
+    )}
+  </section>
+
+</BaseLayout>

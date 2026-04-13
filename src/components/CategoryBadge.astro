@@ -1,0 +1,25 @@
+---
+export interface Props {
+  category: string;
+}
+
+const { category } = Astro.props;
+
+const colorMap: Record<string, string> = {
+  '税務・税制改正': 'bg-red-100 text-red-700',
+  '社会保険・年金': 'bg-blue-100 text-blue-700',
+  'NISA・iDeCo': 'bg-green-100 text-green-700',
+  '不動産・住宅': 'bg-orange-100 text-orange-700',
+  '金融機関の動向': 'bg-purple-100 text-purple-700',
+  'FP試験情報': 'bg-teal-100 text-teal-700',
+};
+
+const colorClass = colorMap[category] ?? 'bg-gray-100 text-gray-700';
+---
+
+<a
+  href={`/category/${category}`}
+  class={`inline-block px-3 py-0.5 rounded-full text-xs font-semibold ${colorClass} hover:opacity-80 transition-opacity`}
+>
+  {category}
+</a>

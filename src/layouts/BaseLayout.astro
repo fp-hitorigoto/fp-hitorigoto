@@ -1,0 +1,99 @@
+---
+export interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+}
+
+const { title, description = 'FP1級ファイナンシャルプランナーが、税務・年金・NISA・不動産など、お金にまつわる最新情報をわかりやすく解説します。', ogImage } = Astro.props;
+const siteTitle = 'FPのひとりごと';
+const fullTitle = title === siteTitle ? title : `${title} | ${siteTitle}`;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="canonical" href={canonicalURL} />
+  <meta name="description" content={description} />
+  <meta property="og:title" content={fullTitle} />
+  <meta property="og:description" content={description} />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={canonicalURL} />
+  {ogImage && <meta property="og:image" content={ogImage} />}
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="alternate" type="application/rss+xml" title={siteTitle} href="/rss.xml" />
+  <title>{fullTitle}</title>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col">
+
+  <!-- ヘッダー -->
+  <header class="bg-navy-800 text-white shadow-lg">
+    <div class="max-w-5xl mx-auto px-4 py-4">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <a href="/" class="group">
+          <h1 class="text-2xl font-bold tracking-tight group-hover:text-gold-400 transition-colors">
+            FPのひとりごと
+          </h1>
+          <p class="text-sm text-navy-100 mt-0.5">お金の話、しましょか。</p>
+        </a>
+        <nav class="flex flex-wrap gap-x-5 gap-y-1 text-sm text-navy-100">
+          <a href="/" class="hover:text-gold-400 transition-colors">ホーム</a>
+          <a href="/category/税務・税制改正" class="hover:text-gold-400 transition-colors">税務</a>
+          <a href="/category/社会保険・年金" class="hover:text-gold-400 transition-colors">年金・保険</a>
+          <a href="/category/NISA・iDeCo" class="hover:text-gold-400 transition-colors">NISA・iDeCo</a>
+          <a href="/category/不動産・住宅" class="hover:text-gold-400 transition-colors">不動産</a>
+          <a href="/category/FP試験情報" class="hover:text-gold-400 transition-colors">FP試験</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <main class="flex-1 max-w-5xl mx-auto w-full px-4 py-8">
+    <slot />
+  </main>
+
+  <!-- フッター -->
+  <footer class="bg-navy-900 text-navy-100 mt-12">
+    <div class="max-w-5xl mx-auto px-4 py-8">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+        <div>
+          <h3 class="font-bold text-white mb-2">FPのひとりごと</h3>
+          <p class="text-sm leading-relaxed">
+            FP1級ファイナンシャルプランナーが、税務・年金・NISA・不動産など、お金にまつわる最新情報をわかりやすくお届けします。
+          </p>
+        </div>
+        <div>
+          <h3 class="font-bold text-white mb-2">カテゴリ</h3>
+          <ul class="text-sm space-y-1">
+            <li><a href="/category/税務・税制改正" class="hover:text-gold-400 transition-colors">税務・税制改正</a></li>
+            <li><a href="/category/社会保険・年金" class="hover:text-gold-400 transition-colors">社会保険・年金</a></li>
+            <li><a href="/category/NISA・iDeCo" class="hover:text-gold-400 transition-colors">NISA・iDeCo</a></li>
+            <li><a href="/category/不動産・住宅" class="hover:text-gold-400 transition-colors">不動産・住宅</a></li>
+            <li><a href="/category/金融機関の動向" class="hover:text-gold-400 transition-colors">金融機関の動向</a></li>
+            <li><a href="/category/FP試験情報" class="hover:text-gold-400 transition-colors">FP試験情報</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-bold text-white mb-2">情報源</h3>
+          <ul class="text-sm space-y-1">
+            <li>財務省・国税庁</li>
+            <li>金融庁</li>
+            <li>厚生労働省・日本年金機構</li>
+            <li>国土交通省</li>
+            <li>日本FP協会・金財</li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-navy-700 pt-4 text-xs text-center text-navy-300">
+        <p>掲載情報は各公式機関の発表をもとにしています。投資判断は自己責任でお願いします。</p>
+        <p class="mt-1">&copy; {new Date().getFullYear()} FPのひとりごと</p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

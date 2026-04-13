@@ -1,0 +1,64 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+
+const categories = [
+  '税務・税制改正',
+  '社会保険・年金',
+  'NISA・iDeCo',
+  '不動産・住宅',
+  '金融機関の動向',
+  'FP試験情報',
+] as const;
+
+export async function getStaticPaths() {
+  const allArticles = await getCollection('articles');
+  const cats = ['税務・税制改正', '社会保険・年金', 'NISA・iDeCo', '不動産・住宅', '金融機関の動向', 'FP試験情報'];
+  return cats.map((category) => ({
+    params: { category },
+    props: {
+      articles: allArticles
+        .filter((a) => a.data.category === category)
+        .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()),
+      category,
+    },
+  }));
+}
+
+const { articles, category } = Astro.props;
+
+const descriptionMap: Record<string, string> = {
+  '税務・税制改正': '所得税・法人税・相続税などの税制改正情報、確定申告のポイントを解説します。',
+  '社会保険・年金': '公的年金・健康保険・介護保険など社会保険制度の最新情報をお届けします。',
+  'NISA・iDeCo': '新NISAやiDeCoの制度解説・活用法・変更点をわかりやすく紹介します。',
+  '不動産・住宅': '住宅ローン・不動産取得・住宅政策に関する最新情報を解説します。',
+  '金融機関の動向': '銀行・証券・保険会社の最新の商品・サービス・動向を紹介します。',
+  'FP試験情報': 'FP2級・1級の試験情報、学習ポイント、過去問解説などをまとめています。',
+};
+---
+
+<BaseLayout title={category} description={descriptionMap[category]}>
+  <div class="mb-6">
+    <nav class="text-sm text-gray-500 mb-3">
+      <a href="/" class="hover:text-navy-700">ホーム</a>
+      <span class="mx-2">/</span>
+      <span>{category}</span>
+    </nav>
+    <h1 class="text-2xl font-bold text-navy-800">{category}</h1>
+    <p class="text-gray-600 mt-1">{descriptionMap[category]}</p>
+    <p class="text-sm text-gray-400 mt-1">{articles.length}件の記事</p>
+  </div>
+
+  {articles.length === 0 ? (
+    <div class="bg-white rounded-xl border border-gray-200 p-10 text-center text-gray-500">
+      <p>このカテゴリの記事はまだありません。</p>
+    </div>
+  ) : (
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {articles.map((article) => (
+        <ArticleCard article={article} />
+      ))}
+    </div>
+  )}
+</BaseLayout>
