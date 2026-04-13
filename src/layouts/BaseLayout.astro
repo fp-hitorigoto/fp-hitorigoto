@@ -24,7 +24,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
   <meta property="og:url" content={canonicalURL} />
   {ogImage && <meta property="og:image" content={ogImage} />}
   <meta name="twitter:card" content="summary_large_image" />
-  <link rel="alternate" type="application/rss+xml" title={siteTitle} href="/rss.xml" />
+  <link rel="alternate" type="application/rss+xml" title={siteTitle} href={`${import.meta.env.BASE_URL}rss.xml`} />
   <title>{fullTitle}</title>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col">
@@ -33,19 +33,19 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
   <header class="bg-navy-800 text-white shadow-lg">
     <div class="max-w-5xl mx-auto px-4 py-4">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <a href="/" class="group">
+        <a href={import.meta.env.BASE_URL} class="group">
           <h1 class="text-2xl font-bold tracking-tight group-hover:text-gold-400 transition-colors">
             FPのひとりごと
           </h1>
           <p class="text-sm text-navy-100 mt-0.5">お金の話、しましょか。</p>
         </a>
         <nav class="flex flex-wrap gap-x-5 gap-y-1 text-sm text-navy-100">
-          <a href="/" class="hover:text-gold-400 transition-colors">ホーム</a>
-          <a href="/category/税務・税制改正" class="hover:text-gold-400 transition-colors">税務</a>
-          <a href="/category/社会保険・年金" class="hover:text-gold-400 transition-colors">年金・保険</a>
-          <a href="/category/NISA・iDeCo" class="hover:text-gold-400 transition-colors">NISA・iDeCo</a>
-          <a href="/category/不動産・住宅" class="hover:text-gold-400 transition-colors">不動産</a>
-          <a href="/category/FP試験情報" class="hover:text-gold-400 transition-colors">FP試験</a>
+          <a href={import.meta.env.BASE_URL} class="hover:text-gold-400 transition-colors">ホーム</a>
+          <a href={`${import.meta.env.BASE_URL}category/税務・税制改正`} class="hover:text-gold-400 transition-colors">税務</a>
+          <a href={`${import.meta.env.BASE_URL}category/社会保険・年金`} class="hover:text-gold-400 transition-colors">年金・保険</a>
+          <a href={`${import.meta.env.BASE_URL}category/NISA・iDeCo`} class="hover:text-gold-400 transition-colors">NISA・iDeCo</a>
+          <a href={`${import.meta.env.BASE_URL}category/不動産・住宅`} class="hover:text-gold-400 transition-colors">不動産</a>
+          <a href={`${import.meta.env.BASE_URL}category/FP試験情報`} class="hover:text-gold-400 transition-colors">FP試験</a>
         </nav>
       </div>
     </div>
@@ -69,12 +69,12 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         <div>
           <h3 class="font-bold text-white mb-2">カテゴリ</h3>
           <ul class="text-sm space-y-1">
-            <li><a href="/category/税務・税制改正" class="hover:text-gold-400 transition-colors">税務・税制改正</a></li>
-            <li><a href="/category/社会保険・年金" class="hover:text-gold-400 transition-colors">社会保険・年金</a></li>
-            <li><a href="/category/NISA・iDeCo" class="hover:text-gold-400 transition-colors">NISA・iDeCo</a></li>
-            <li><a href="/category/不動産・住宅" class="hover:text-gold-400 transition-colors">不動産・住宅</a></li>
-            <li><a href="/category/金融機関の動向" class="hover:text-gold-400 transition-colors">金融機関の動向</a></li>
-            <li><a href="/category/FP試験情報" class="hover:text-gold-400 transition-colors">FP試験情報</a></li>
+            <li><a href={`${import.meta.env.BASE_URL}category/税務・税制改正`} class="hover:text-gold-400 transition-colors">税務・税制改正</a></li>
+            <li><a href={`${import.meta.env.BASE_URL}category/社会保険・年金`} class="hover:text-gold-400 transition-colors">社会保険・年金</a></li>
+            <li><a href={`${import.meta.env.BASE_URL}category/NISA・iDeCo`} class="hover:text-gold-400 transition-colors">NISA・iDeCo</a></li>
+            <li><a href={`${import.meta.env.BASE_URL}category/不動産・住宅`} class="hover:text-gold-400 transition-colors">不動産・住宅</a></li>
+            <li><a href={`${import.meta.env.BASE_URL}category/金融機関の動向`} class="hover:text-gold-400 transition-colors">金融機関の動向</a></li>
+            <li><a href={`${import.meta.env.BASE_URL}category/FP試験情報`} class="hover:text-gold-400 transition-colors">FP試験情報</a></li>
           </ul>
         </div>
         <div>
