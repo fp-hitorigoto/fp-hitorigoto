@@ -16,8 +16,8 @@ const formattedDate = new Intl.DateTimeFormat('ja-JP', {
 }).format(pubDate);
 ---
 
-<article class="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow overflow-hidden">
-  <a href={`${import.meta.env.BASE_URL}articles/${article.slug}`} class="block p-5">
+<article class="relative bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow overflow-hidden">
+  <div class="block p-5">
     <div class="flex items-center justify-between gap-2 mb-2">
       <CategoryBadge category={category} />
       <time class="text-xs text-gray-400 shrink-0" datetime={pubDate.toISOString()}>
@@ -25,11 +25,13 @@ const formattedDate = new Intl.DateTimeFormat('ja-JP', {
       </time>
     </div>
     <h2 class="font-bold text-navy-800 text-base leading-snug mb-2 line-clamp-2 hover:text-navy-600 transition-colors">
-      {title}
+      <a href={`${import.meta.env.BASE_URL}articles/${article.slug}`} class="after:absolute after:inset-0">
+        {title}
+      </a>
     </h2>
     <p class="text-sm text-gray-600 leading-relaxed line-clamp-3 mb-3">
       {excerpt}
     </p>
     <p class="text-xs text-gray-400">情報源：{source}</p>
-  </a>
+  </div>
 </article>
