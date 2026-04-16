@@ -152,16 +152,9 @@ declare module 'astro:content' {
 
 	type ContentEntryMap = {
 		"articles": {
-"ideco-tax-2024.md": {
-	id: "ideco-tax-2024.md";
-  slug: "ideco-tax-2024";
-  body: string;
-  collection: "articles";
-  data: InferEntrySchema<"articles">
-} & { render(): Render[".md"] };
-"nisa-2024-overview.md": {
-	id: "nisa-2024-overview.md";
-  slug: "nisa-2024-overview";
+"nisa-2026.md": {
+	id: "nisa-2026.md";
+  slug: "nisa-2026";
   body: string;
   collection: "articles";
   data: InferEntrySchema<"articles">
