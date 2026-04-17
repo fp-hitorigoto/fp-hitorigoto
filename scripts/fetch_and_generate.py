@@ -260,14 +260,17 @@ def save_article(item: dict, body: str) -> bool:
     }
     tags = tag_map.get(item["category"], [])
 
+    title_escaped = item["title"].replace('"', '\\"')
+    excerpt_escaped = excerpt.replace('"', '\\"')
+
     frontmatter = f"""---
-title: "{item['title'].replace('"', '\\"')}"
+title: "{title_escaped}"
 pubDate: {date_str}
 category: "{item['category']}"
 source: "{item['source']}"
 sourceUrl: "{item['link']}"
 tags: {json.dumps(tags, ensure_ascii=False)}
-excerpt: "{excerpt.replace('"', '\\"')}"
+excerpt: "{excerpt_escaped}"
 ---
 
 """
