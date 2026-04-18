@@ -4,6 +4,6 @@ import mdx from '@astrojs/mdx';
 
 export default defineConfig({
   site: 'https://fp-hitorigoto.github.io',
-  base: '/fp-hitorigoto',
+  base: '/fp-hitorigoto/',
   integrations: [tailwind(), mdx()],
 });
