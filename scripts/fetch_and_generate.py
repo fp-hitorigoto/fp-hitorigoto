@@ -10,6 +10,7 @@ import re
 import hashlib
 import feedparser
 import anthropic
+import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 from dateutil import parser as dateparser
@@ -162,7 +163,13 @@ def fetch_new_items(processed: set) -> list:
         print(f"  取得中: {feed_config['source']} ({url})")
 
         try:
-            feed = feedparser.parse(url, request_headers={"User-Agent": "FPのひとりごと/1.0"})
+            req = urllib.request.Request(
+                url,
+                headers={"User-Agent": "fp-hitorigoto-bot/1.0"},
+            )
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                raw = resp.read()
+            feed = feedparser.parse(raw)
 
             if feed.bozo and not feed.entries:
                 print(f"    ⚠️ フィード取得失敗またはエントリなし")
