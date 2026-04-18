@@ -66,6 +66,48 @@ RSS_FEEDS = [
         "source": "日本銀行",
         "category": "金融機関の動向",
     },
+    # 住宅金融支援機構
+    {
+        "url": "https://www.jhf.go.jp/rss.xml",
+        "source": "住宅金融支援機構",
+        "category": "不動産・住宅",
+    },
+    # 生命保険協会
+    {
+        "url": "https://www.seiho.or.jp/info/feed/rss.xml",
+        "source": "生命保険協会",
+        "category": "リスク管理・保険",
+    },
+    # 投資信託協会
+    {
+        "url": "https://www.toushin.or.jp/rss/news.rdf",
+        "source": "投資信託協会",
+        "category": "NISA・iDeCo",
+    },
+    # 中小企業庁
+    {
+        "url": "https://www.chusho.meti.go.jp/rss/index.xml",
+        "source": "中小企業庁",
+        "category": "相続・事業承継",
+    },
+    # 全国銀行協会
+    {
+        "url": "https://www.zenginkyo.or.jp/news/rss/",
+        "source": "全国銀行協会",
+        "category": "金融機関の動向",
+    },
+    # 日本税理士会連合会
+    {
+        "url": "https://www.nichizeiren.or.jp/feed/",
+        "source": "日本税理士会連合会",
+        "category": "相続・事業承継",
+    },
+    # 信託協会
+    {
+        "url": "https://www.shintaku-kyokai.or.jp/rss/",
+        "source": "信託協会",
+        "category": "相続・事業承継",
+    },
 ]
 
 # ============================================================
@@ -257,6 +299,8 @@ def save_article(item: dict, body: str) -> bool:
         "不動産・住宅": ["不動産", "住宅"],
         "金融機関の動向": ["金融", "銀行"],
         "FP試験情報": ["FP試験", "資格"],
+        "相続・事業承継": ["相続", "事業承継"],
+        "リスク管理・保険": ["保険", "リスク管理"],
     }
     tags = tag_map.get(item["category"], [])
 
