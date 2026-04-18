@@ -152,6 +152,76 @@ declare module 'astro:content' {
 
 	type ContentEntryMap = {
 		"articles": {
+"2026-04-17-23f2a2e14747-7df22b.md": {
+	id: "2026-04-17-23f2a2e14747-7df22b.md";
+  slug: "2026-04-17-23f2a2e14747-7df22b";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-17-23f2a2e14747.md": {
+	id: "2026-04-17-23f2a2e14747.md";
+  slug: "2026-04-17-23f2a2e14747";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-17-421e5644b7e5-45f971.md": {
+	id: "2026-04-17-421e5644b7e5-45f971.md";
+  slug: "2026-04-17-421e5644b7e5-45f971";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-17-421e5644b7e5.md": {
+	id: "2026-04-17-421e5644b7e5.md";
+  slug: "2026-04-17-421e5644b7e5";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-17-6dd0e6e7d818-02fd8d.md": {
+	id: "2026-04-17-6dd0e6e7d818-02fd8d.md";
+  slug: "2026-04-17-6dd0e6e7d818-02fd8d";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-17-6dd0e6e7d818.md": {
+	id: "2026-04-17-6dd0e6e7d818.md";
+  slug: "2026-04-17-6dd0e6e7d818";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-17-e5da32ba45f5-83f06a.md": {
+	id: "2026-04-17-e5da32ba45f5-83f06a.md";
+  slug: "2026-04-17-e5da32ba45f5-83f06a";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-17-e5da32ba45f5.md": {
+	id: "2026-04-17-e5da32ba45f5.md";
+  slug: "2026-04-17-e5da32ba45f5";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-17-e92b4f86c0d5-c743ef.md": {
+	id: "2026-04-17-e92b4f86c0d5-c743ef.md";
+  slug: "2026-04-17-e92b4f86c0d5-c743ef";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-17-e92b4f86c0d5.md": {
+	id: "2026-04-17-e92b4f86c0d5.md";
+  slug: "2026-04-17-e92b4f86c0d5";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
 "nisa-2026.md": {
 	id: "nisa-2026.md";
   slug: "nisa-2026";
