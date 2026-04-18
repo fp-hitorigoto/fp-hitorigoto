@@ -19,77 +19,41 @@ from dateutil import parser as dateparser
 # 設定：RSSフィード一覧
 # ============================================================
 RSS_FEEDS = [
-    # 財務省
+    # e-Gov（法令・行政情報 ※財務省RSS廃止のため代替）
     {
-        "url": "https://www.mof.go.jp/rss/index.xml",
-        "source": "財務省",
+        "url": "https://www.e-gov.go.jp/rss.xml",
+        "source": "e-Gov",
         "category": "税務・税制改正",
     },
-    # 国税庁
+    # 金融庁（URL変更）
     {
-        "url": "https://www.nta.go.jp/information/release/rss/kokuzeicho.rdf",
-        "source": "国税庁",
-        "category": "税務・税制改正",
-    },
-    # 金融庁
-    {
-        "url": "https://www.fsa.go.jp/rss/fsa.rdf",
+        "url": "https://www.fsa.go.jp/fsaNewsListAll_rss2.xml",
         "source": "金融庁",
         "category": "NISA・iDeCo",
     },
-    # 厚生労働省
+    # 厚生労働省（URL変更）
     {
-        "url": "https://www.mhlw.go.jp/rss/shinchaku.rdf",
+        "url": "https://www.mhlw.go.jp/stf/news.rdf",
         "source": "厚生労働省",
         "category": "社会保険・年金",
     },
-    # 日本年金機構
+    # 金財（日本FP協会RSS廃止のため代替）
     {
-        "url": "https://www.nenkin.go.jp/rss/topics.xml",
-        "source": "日本年金機構",
-        "category": "社会保険・年金",
-    },
-    # 国土交通省（住宅・不動産）
-    {
-        "url": "https://www.mlit.go.jp/rss/houdou.xml",
-        "source": "国土交通省",
-        "category": "不動産・住宅",
-    },
-    # 日本FP協会
-    {
-        "url": "https://www.jafp.or.jp/rss/",
-        "source": "日本FP協会",
+        "url": "https://www.kinzai.or.jp/rss",
+        "source": "金財",
         "category": "FP試験情報",
     },
-    # 日本銀行
+    # 日本銀行（URL変更）
     {
-        "url": "https://www.boj.or.jp/rss/news.xml",
+        "url": "https://www.boj.or.jp/rss/whatsnew.xml",
         "source": "日本銀行",
         "category": "金融機関の動向",
-    },
-    # 住宅金融支援機構
-    {
-        "url": "https://www.jhf.go.jp/rss.xml",
-        "source": "住宅金融支援機構",
-        "category": "不動産・住宅",
     },
     # 生命保険協会
     {
         "url": "https://www.seiho.or.jp/info/feed/rss.xml",
         "source": "生命保険協会",
         "category": "リスク管理・保険",
-    },
-    # 投資信託協会
-    {
-        "url": "https://www.toushin.or.jp/rss/news.rdf",
-        "source": "投資信託協会",
-        "category": "NISA・iDeCo",
-    },
-    # 中小企業庁
-    {
-        "url": "https://www.chusho.meti.go.jp/rss/index.xml",
-        "source": "中小企業庁",
-        "category": "相続・事業承継",
     },
     # 全国銀行協会
     {
@@ -103,9 +67,9 @@ RSS_FEEDS = [
         "source": "日本税理士会連合会",
         "category": "相続・事業承継",
     },
-    # 信託協会
+    # 信託協会（URL修正）
     {
-        "url": "https://www.shintaku-kyokai.or.jp/rss/",
+        "url": "https://www.shintaku-kyokai.or.jp/rss2.xml",
         "source": "信託協会",
         "category": "相続・事業承継",
     },
@@ -165,7 +129,7 @@ def fetch_new_items(processed: set) -> list:
         try:
             req = urllib.request.Request(
                 url,
-                headers={"User-Agent": "fp-hitorigoto-bot/1.0"},
+                headers={"User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"},
             )
             with urllib.request.urlopen(req, timeout=15) as resp:
                 raw = resp.read()
