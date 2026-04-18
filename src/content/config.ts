@@ -12,6 +12,8 @@ const articles = defineCollection({
       '不動産・住宅',
       '金融機関の動向',
       'FP試験情報',
+      'リスク管理・保険',
+      '相続・事業承継',
     ]),
     source: z.string(),
     sourceUrl: z.string().url().optional(),
