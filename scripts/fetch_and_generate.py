@@ -25,6 +25,12 @@ RSS_FEEDS = [
         "source": "e-Gov",
         "category": "税務・税制改正",
     },
+    # 消費者庁（※国税庁RSS廃止のため代替）
+    {
+        "url": "https://www.caa.go.jp/news.rss",
+        "source": "消費者庁",
+        "category": "税務・税制改正",
+    },
     # 金融庁（URL変更）
     {
         "url": "https://www.fsa.go.jp/fsaNewsListAll_rss2.xml",
@@ -48,6 +54,18 @@ RSS_FEEDS = [
         "url": "https://www.boj.or.jp/rss/whatsnew.xml",
         "source": "日本銀行",
         "category": "金融機関の動向",
+    },
+    # 経済産業省（※住宅金融支援機構RSS廃止のため代替）
+    {
+        "url": "https://www.meti.go.jp/ml_index_release_atom.xml",
+        "source": "経済産業省",
+        "category": "不動産・住宅",
+    },
+    # 日本証券業協会（※投資信託協会RSS廃止のため代替）
+    {
+        "url": "https://www.jsda.or.jp/index.rss",
+        "source": "日本証券業協会",
+        "category": "NISA・iDeCo",
     },
     # 生命保険協会
     {
