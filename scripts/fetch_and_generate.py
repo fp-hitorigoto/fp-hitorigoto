@@ -73,6 +73,12 @@ RSS_FEEDS = [
         "source": "信託協会",
         "category": "相続・事業承継",
     },
+    # 中小企業庁
+    {
+        "url": "https://www.chusho.meti.go.jp/rss/index.xml",
+        "source": "中小企業庁",
+        "category": "相続・事業承継",
+    },
 ]
 
 # ============================================================
@@ -129,7 +135,7 @@ def fetch_new_items(processed: set) -> list:
         try:
             req = urllib.request.Request(
                 url,
-                headers={"User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"},
+                headers={"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"},
             )
             with urllib.request.urlopen(req, timeout=15) as resp:
                 raw = resp.read()
