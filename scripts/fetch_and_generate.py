@@ -8,6 +8,7 @@ import os
 import json
 import re
 import hashlib
+import calendar
 import feedparser
 import anthropic
 import urllib.request
@@ -175,12 +176,15 @@ def fetch_new_items(processed: set) -> list:
                     continue
 
                 # 公開日時を取得
-                pub_date = datetime.now(timezone.utc)
+                now = datetime.now(timezone.utc)
+                pub_date = now
                 if hasattr(entry, "published_parsed") and entry.published_parsed:
-                    import time
                     pub_date = datetime.fromtimestamp(
-                        time.mktime(entry.published_parsed), tz=timezone.utc
+                        calendar.timegm(entry.published_parsed), tz=timezone.utc
                     )
+                    # 未来日付は現在日時に差し替え
+                    if pub_date > now:
+                        pub_date = now
 
                 description = entry.get("summary", entry.get("description", ""))
                 # HTMLタグを除去
