@@ -6,4 +6,3 @@ dist/
 .DS_Store
 *.pyc
 __pycache__/
-scripts/processed_items.json
