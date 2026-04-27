@@ -379,12 +379,21 @@ def fetch_new_items(processed: set) -> list:
                 print(f"    ⚠️ フィード取得失敗またはエントリなし")
                 continue
 
+            # フィードURLからベースURL（スキーム＋ドメイン）を抽出
+            from urllib.parse import urlparse
+            parsed_feed_url = urlparse(url)
+            base_url = f"{parsed_feed_url.scheme}://{parsed_feed_url.netloc}"
+
             for entry in feed.entries[:10]:  # 最新10件をチェック
                 title = entry.get("title", "").strip()
                 link = entry.get("link", "").strip()
 
                 if not title or not link:
                     continue
+
+                # 相対URLをベースURLで補完
+                if link.startswith("/"):
+                    link = base_url + link
 
                 item_id = make_item_id(link, title)
                 if item_id in processed:

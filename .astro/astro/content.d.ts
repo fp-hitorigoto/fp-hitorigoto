@@ -152,9 +152,58 @@ declare module 'astro:content' {
 
 	type ContentEntryMap = {
 		"articles": {
+"2026-04-08-0f4c5cef3dab.md": {
+	id: "2026-04-08-0f4c5cef3dab.md";
+  slug: "2026-04-08-0f4c5cef3dab";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-09-138d0f5e42bd.md": {
+	id: "2026-04-09-138d0f5e42bd.md";
+  slug: "2026-04-09-138d0f5e42bd";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-09-4ce30ebbd9aa.md": {
+	id: "2026-04-09-4ce30ebbd9aa.md";
+  slug: "2026-04-09-4ce30ebbd9aa";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-13-3371a5626fe5.md": {
+	id: "2026-04-13-3371a5626fe5.md";
+  slug: "2026-04-13-3371a5626fe5";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-16-83d8e92bff6d.md": {
+	id: "2026-04-16-83d8e92bff6d.md";
+  slug: "2026-04-16-83d8e92bff6d";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-17-0fe57837e39e.md": {
+	id: "2026-04-17-0fe57837e39e.md";
+  slug: "2026-04-17-0fe57837e39e";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
 "2026-04-17-23f2a2e14747.md": {
 	id: "2026-04-17-23f2a2e14747.md";
   slug: "2026-04-17-23f2a2e14747";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-17-335dfa311b0a.md": {
+	id: "2026-04-17-335dfa311b0a.md";
+  slug: "2026-04-17-335dfa311b0a";
   body: string;
   collection: "articles";
   data: InferEntrySchema<"articles">
@@ -169,6 +218,13 @@ declare module 'astro:content' {
 "2026-04-17-6dd0e6e7d818.md": {
 	id: "2026-04-17-6dd0e6e7d818.md";
   slug: "2026-04-17-6dd0e6e7d818";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-17-98a2aa0308ce.md": {
+	id: "2026-04-17-98a2aa0308ce.md";
+  slug: "2026-04-17-98a2aa0308ce";
   body: string;
   collection: "articles";
   data: InferEntrySchema<"articles">
@@ -264,6 +320,41 @@ declare module 'astro:content' {
   collection: "articles";
   data: InferEntrySchema<"articles">
 } & { render(): Render[".md"] };
+"2026-04-21-13408d31a24c.md": {
+	id: "2026-04-21-13408d31a24c.md";
+  slug: "2026-04-21-13408d31a24c";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-21-6282081c0ae0.md": {
+	id: "2026-04-21-6282081c0ae0.md";
+  slug: "2026-04-21-6282081c0ae0";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-21-9bf7ff9cd919.md": {
+	id: "2026-04-21-9bf7ff9cd919.md";
+  slug: "2026-04-21-9bf7ff9cd919";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-21-a93488e2171d.md": {
+	id: "2026-04-21-a93488e2171d.md";
+  slug: "2026-04-21-a93488e2171d";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-21-ba68653bee13.md": {
+	id: "2026-04-21-ba68653bee13.md";
+  slug: "2026-04-21-ba68653bee13";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
 "2026-04-21-f99a31aa61cf.md": {
 	id: "2026-04-21-f99a31aa61cf.md";
   slug: "2026-04-21-f99a31aa61cf";
@@ -271,9 +362,142 @@ declare module 'astro:content' {
   collection: "articles";
   data: InferEntrySchema<"articles">
 } & { render(): Render[".md"] };
+"2026-04-21-ff2a87ec2872.md": {
+	id: "2026-04-21-ff2a87ec2872.md";
+  slug: "2026-04-21-ff2a87ec2872";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-22-4e7fb4c21ac0.md": {
+	id: "2026-04-22-4e7fb4c21ac0.md";
+  slug: "2026-04-22-4e7fb4c21ac0";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-22-6ab7506cc036.md": {
+	id: "2026-04-22-6ab7506cc036.md";
+  slug: "2026-04-22-6ab7506cc036";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-22-98577e171804.md": {
+	id: "2026-04-22-98577e171804.md";
+  slug: "2026-04-22-98577e171804";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-22-c3a7fd4f6003.md": {
+	id: "2026-04-22-c3a7fd4f6003.md";
+  slug: "2026-04-22-c3a7fd4f6003";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-23-1f3d4931510b.md": {
+	id: "2026-04-23-1f3d4931510b.md";
+  slug: "2026-04-23-1f3d4931510b";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-23-48364433fcb8.md": {
+	id: "2026-04-23-48364433fcb8.md";
+  slug: "2026-04-23-48364433fcb8";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-23-5af0de49bfa2.md": {
+	id: "2026-04-23-5af0de49bfa2.md";
+  slug: "2026-04-23-5af0de49bfa2";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-23-6dc4456bd972.md": {
+	id: "2026-04-23-6dc4456bd972.md";
+  slug: "2026-04-23-6dc4456bd972";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-23-b1f9f06f124a.md": {
+	id: "2026-04-23-b1f9f06f124a.md";
+  slug: "2026-04-23-b1f9f06f124a";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-23-b4ca86fa0695.md": {
+	id: "2026-04-23-b4ca86fa0695.md";
+  slug: "2026-04-23-b4ca86fa0695";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-23-b79c17406c8c.md": {
+	id: "2026-04-23-b79c17406c8c.md";
+  slug: "2026-04-23-b79c17406c8c";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-24-0557a1d712c9.md": {
+	id: "2026-04-24-0557a1d712c9.md";
+  slug: "2026-04-24-0557a1d712c9";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-24-57bf284a5892.md": {
+	id: "2026-04-24-57bf284a5892.md";
+  slug: "2026-04-24-57bf284a5892";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-24-7e1319226ba6.md": {
+	id: "2026-04-24-7e1319226ba6.md";
+  slug: "2026-04-24-7e1319226ba6";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-24-ddef2eb04fb5.md": {
+	id: "2026-04-24-ddef2eb04fb5.md";
+  slug: "2026-04-24-ddef2eb04fb5";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-24-f395057723bc.md": {
+	id: "2026-04-24-f395057723bc.md";
+  slug: "2026-04-24-f395057723bc";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"kojin-kokusai.md": {
+	id: "kojin-kokusai.md";
+  slug: "kojin-kokusai";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
 "nisa-2026.md": {
 	id: "nisa-2026.md";
   slug: "nisa-2026";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"tokyo-chika-2026.md": {
+	id: "tokyo-chika-2026.md";
+  slug: "tokyo-chika-2026";
   body: string;
   collection: "articles";
   data: InferEntrySchema<"articles">
