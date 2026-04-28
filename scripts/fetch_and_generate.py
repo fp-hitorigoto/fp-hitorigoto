@@ -549,13 +549,18 @@ def save_article(item: dict, body: str) -> bool:
     title_escaped = item["title"].replace('"', '\\"')
     excerpt_escaped = excerpt.replace('"', '\\"')
 
+    # sourceUrl の検証：空・相対パス・None は frontmatter から除外
+    source_url = item.get("link", "")
+    source_url_line = ""
+    if source_url and source_url.startswith(("http://", "https://")):
+        source_url_line = f'sourceUrl: "{source_url}"\n'
+
     frontmatter = f"""---
 title: "{title_escaped}"
 pubDate: {date_str}
 category: "{item['category']}"
 source: "{item['source']}"
-sourceUrl: "{item['link']}"
-tags: {json.dumps(tags, ensure_ascii=False)}
+{source_url_line}tags: {json.dumps(tags, ensure_ascii=False)}
 excerpt: "{excerpt_escaped}"
 ---
 

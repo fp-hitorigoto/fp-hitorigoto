@@ -16,7 +16,7 @@ const articles = defineCollection({
       '相続・事業承継',
     ]),
     source: z.string(),
-    sourceUrl: z.string().url().optional(),
+    sourceUrl: z.string().url().or(z.literal('')).optional(),
     tags: z.array(z.string()).default([]),
     excerpt: z.string(),
   }),
