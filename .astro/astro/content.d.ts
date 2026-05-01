@@ -481,9 +481,163 @@ declare module 'astro:content' {
   collection: "articles";
   data: InferEntrySchema<"articles">
 } & { render(): Render[".md"] };
+"2026-04-27-93d3eae14a12.md": {
+	id: "2026-04-27-93d3eae14a12.md";
+  slug: "2026-04-27-93d3eae14a12";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-27-b551e0099e49.md": {
+	id: "2026-04-27-b551e0099e49.md";
+  slug: "2026-04-27-b551e0099e49";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-27-cd61e0ccadad.md": {
+	id: "2026-04-27-cd61e0ccadad.md";
+  slug: "2026-04-27-cd61e0ccadad";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-28-1f25abc2fdb4.md": {
+	id: "2026-04-28-1f25abc2fdb4.md";
+  slug: "2026-04-28-1f25abc2fdb4";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-28-5a2499d0bb11.md": {
+	id: "2026-04-28-5a2499d0bb11.md";
+  slug: "2026-04-28-5a2499d0bb11";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-28-785fa441e5ad.md": {
+	id: "2026-04-28-785fa441e5ad.md";
+  slug: "2026-04-28-785fa441e5ad";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-28-b9fc8a7f3e27.md": {
+	id: "2026-04-28-b9fc8a7f3e27.md";
+  slug: "2026-04-28-b9fc8a7f3e27";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-28-cb49202fd893.md": {
+	id: "2026-04-28-cb49202fd893.md";
+  slug: "2026-04-28-cb49202fd893";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-28-e3272fd647e6.md": {
+	id: "2026-04-28-e3272fd647e6.md";
+  slug: "2026-04-28-e3272fd647e6";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-28-ea6002d3077e.md": {
+	id: "2026-04-28-ea6002d3077e.md";
+  slug: "2026-04-28-ea6002d3077e";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-30-0ffd8808243e.md": {
+	id: "2026-04-30-0ffd8808243e.md";
+  slug: "2026-04-30-0ffd8808243e";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-30-3cdefeaba9c2.md": {
+	id: "2026-04-30-3cdefeaba9c2.md";
+  slug: "2026-04-30-3cdefeaba9c2";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-30-552cc82d6a43.md": {
+	id: "2026-04-30-552cc82d6a43.md";
+  slug: "2026-04-30-552cc82d6a43";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-30-dde08e8d2868.md": {
+	id: "2026-04-30-dde08e8d2868.md";
+  slug: "2026-04-30-dde08e8d2868";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-30-f949cd0e0e0a.md": {
+	id: "2026-04-30-f949cd0e0e0a.md";
+  slug: "2026-04-30-f949cd0e0e0a";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-05-01-4e584c7011a0.md": {
+	id: "2026-05-01-4e584c7011a0.md";
+  slug: "2026-05-01-4e584c7011a0";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-05-01-51e213dda5aa.md": {
+	id: "2026-05-01-51e213dda5aa.md";
+  slug: "2026-05-01-51e213dda5aa";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-05-01-6382eb127770.md": {
+	id: "2026-05-01-6382eb127770.md";
+  slug: "2026-05-01-6382eb127770";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-05-01-882d5496054b.md": {
+	id: "2026-05-01-882d5496054b.md";
+  slug: "2026-05-01-882d5496054b";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-05-01-8a61f26b3fe8.md": {
+	id: "2026-05-01-8a61f26b3fe8.md";
+  slug: "2026-05-01-8a61f26b3fe8";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
 "fp-cbt-exam-2026.md": {
 	id: "fp-cbt-exam-2026.md";
   slug: "fp-cbt-exam-2026";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"fp2-quiz-challenge.md": {
+	id: "fp2-quiz-challenge.md";
+  slug: "fp2-quiz-challenge";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"fp3-quiz-challenge.md": {
+	id: "fp3-quiz-challenge.md";
+  slug: "fp3-quiz-challenge";
   body: string;
   collection: "articles";
   data: InferEntrySchema<"articles">
