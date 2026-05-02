@@ -621,6 +621,13 @@ declare module 'astro:content' {
   collection: "articles";
   data: InferEntrySchema<"articles">
 } & { render(): Render[".md"] };
+"forex-intervention-2026.md": {
+	id: "forex-intervention-2026.md";
+  slug: "forex-intervention-2026";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
 "fp-cbt-exam-2026.md": {
 	id: "fp-cbt-exam-2026.md";
   slug: "fp-cbt-exam-2026";

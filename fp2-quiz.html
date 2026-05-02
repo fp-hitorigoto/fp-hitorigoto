@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FP2級">
+<meta name="theme-color" content="#0d1b2a">
+<title>FP2級 過去問チャレンジ</title>
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0d1b2a;--gold:#c9a84c;--gold-light:#f0d080;--cream:#fdf6e3;--red:#c0392b;--green:#1a7a4a;--orange:#e67e22;--gray:#8a8a8a;--card-bg:#fff;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overscroll-behavior:none;}
+body{background:var(--navy);font-family:'Noto Sans JP',sans-serif;color:var(--navy);min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 20%,rgba(201,168,76,.09) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(201,168,76,.06) 0%,transparent 50%);pointer-events:none;z-index:0;}
+.app{max-width:520px;margin:0 auto;padding:0 16px 40px;position:relative;z-index:1;}
+
+/* ===== スタート画面 ===== */
+#start-screen{padding-top:32px;}
+.logo-wrap{text-align:center;padding:20px 0 28px;}
+.logo-badge{display:inline-block;background:var(--gold);color:var(--navy);font-size:11px;font-weight:700;letter-spacing:.18em;padding:5px 16px;border-radius:2px;margin-bottom:12px;}
+.logo-title{font-family:'Noto Serif JP',serif;font-size:30px;font-weight:900;color:var(--cream);line-height:1.25;margin-bottom:6px;}
+.logo-sub{color:rgba(253,246,227,.5);font-size:13px;}
+
+/* 統計カード */
+.stats-card{background:rgba(253,246,227,.06);border:1px solid rgba(201,168,76,.2);border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;gap:0;}
+.stat-item{flex:1;text-align:center;}
+.stat-item+.stat-item{border-left:1px solid rgba(201,168,76,.15);}
+.stat-num{font-family:'Noto Serif JP',serif;font-size:24px;font-weight:700;color:var(--gold);}
+.stat-label{font-size:11px;color:rgba(253,246,227,.5);margin-top:2px;}
+
+/* 分野選択 */
+.section-label{font-size:11px;font-weight:700;color:rgba(253,246,227,.5);letter-spacing:.1em;margin-bottom:10px;}
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;}
+.cat-card{background:rgba(253,246,227,.06);border:1px solid rgba(201,168,76,.2);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.cat-card.selected{background:rgba(201,168,76,.15);border-color:var(--gold);}
+.cat-card:active{transform:scale(.97);}
+.cat-name{font-size:14px;font-weight:700;color:var(--cream);margin-bottom:3px;}
+.cat-count{font-size:11px;color:rgba(253,246,227,.5);}
+.cat-wrong{position:absolute;top:8px;right:10px;background:var(--orange);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;}
+.cat-all{grid-column:span 2;}
+
+/* 出題数選択 */
+.count-row{display:flex;gap:8px;margin-bottom:24px;}
+.count-btn{flex:1;padding:10px 4px;border-radius:8px;border:1px solid rgba(201,168,76,.25);background:transparent;color:rgba(253,246,227,.6);font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Noto Sans JP',sans-serif;text-align:center;}
+.count-btn.selected{background:var(--gold);color:var(--navy);border-color:var(--gold);}
+.count-btn:active{transform:scale(.96);}
+
+/* スタートボタン */
+.start-btn{width:100%;padding:18px;background:var(--gold);color:var(--navy);border:none;border-radius:12px;font-family:'Noto Serif JP',serif;font-size:18px;font-weight:900;cursor:pointer;transition:all .2s;letter-spacing:.05em;box-shadow:0 8px 24px rgba(201,168,76,.3);}
+.start-btn:active{transform:scale(.98);}
+.start-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+/* 復習バナー */
+.review-banner{display:flex;align-items:center;justify-content:space-between;background:rgba(230,126,34,.12);border:1px solid rgba(230,126,34,.35);border-radius:10px;padding:12px 16px;margin-bottom:20px;cursor:pointer;transition:all .2s;}
+.review-banner:active{transform:scale(.98);}
+.review-banner-left{display:flex;align-items:center;gap:10px;}
+.review-icon{font-size:20px;}
+.review-text strong{display:block;font-size:13px;color:var(--orange);font-weight:700;}
+.review-text span{font-size:11px;color:rgba(253,246,227,.5);}
+.review-arrow{color:var(--orange);font-size:18px;}
+
+/* ===== クイズ画面 ===== */
+#quiz-screen{display:none;padding-top:16px;}
+
+/* ヘッダーバー */
+.quiz-header{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.back-btn{background:transparent;border:1px solid rgba(201,168,76,.3);color:rgba(253,246,227,.7);font-size:12px;padding:6px 12px;border-radius:6px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:all .2s;flex-shrink:0;}
+.back-btn:active{background:rgba(201,168,76,.1);}
+.quiz-title-bar{flex:1;min-width:0;}
+.quiz-mode-label{font-size:11px;color:var(--gold);font-weight:700;letter-spacing:.1em;}
+.quiz-progress-mini{font-size:12px;color:rgba(253,246,227,.5);margin-top:1px;}
+
+/* スコアバー */
+.score-bar{display:flex;justify-content:space-between;align-items:center;background:rgba(253,246,227,.06);border:1px solid rgba(201,168,76,.2);border-radius:8px;padding:10px 18px;margin-bottom:14px;}
+.score-item{text-align:center;}
+.score-num{font-family:'Noto Serif JP',serif;font-size:20px;font-weight:700;color:var(--gold);}
+.score-label{font-size:10px;color:rgba(253,246,227,.5);margin-top:1px;}
+.progress-wrap{flex:1;margin:0 16px;}
+.progress-text{font-size:11px;color:rgba(253,246,227,.5);text-align:center;margin-bottom:5px;}
+.progress-bar{height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));border-radius:2px;transition:width .5s ease;}
+
+/* 問題カード */
+.question-card{background:var(--card-bg);border-radius:16px;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,.4);animation:slideUp .35s ease;}
+.card-header{background:var(--navy);padding:12px 20px;display:flex;justify-content:space-between;align-items:center;}
+.q-number{font-size:12px;color:var(--gold);font-weight:700;letter-spacing:.1em;}
+.category-tag{font-size:11px;background:rgba(201,168,76,.15);color:var(--gold);padding:3px 10px;border-radius:10px;border:1px solid rgba(201,168,76,.3);}
+.review-tag{background:rgba(230,126,34,.15);color:var(--orange);border-color:rgba(230,126,34,.3);}
+.card-body{padding:22px 20px 18px;}
+.question-text{font-size:15px;line-height:1.8;color:var(--navy);margin-bottom:20px;border-left:3px solid var(--gold);padding-left:14px;}
+.choices{display:flex;flex-direction:column;gap:9px;}
+.choice-btn{width:100%;padding:13px 14px;border:2px solid #e8e0d0;border-radius:10px;background:#fafaf8;font-family:'Noto Sans JP',sans-serif;font-size:14px;color:var(--navy);text-align:left;cursor:pointer;transition:all .2s;display:flex;align-items:flex-start;gap:10px;line-height:1.6;}
+.choice-btn:active:not(:disabled){background:#fffdf0;}
+.choice-num{font-weight:700;color:var(--gold);flex-shrink:0;font-size:15px;min-width:18px;}
+.choice-btn.correct{border-color:var(--green);background:#f0faf5;color:var(--green);}
+.choice-btn.wrong{border-color:var(--red);background:#fdf5f5;color:var(--red);}
+.choice-btn.dimmed{opacity:.38;}
+
+/* 解説 */
+.explanation{margin-top:16px;padding:14px 16px;background:#f8f5ee;border-radius:10px;border-left:4px solid var(--gold);animation:fadeIn .3s ease;}
+.explanation-title{font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.1em;margin-bottom:6px;}
+.explanation-text{font-size:13px;line-height:1.8;color:#444;}
+.explanation-point{margin-top:9px;padding:9px 12px;background:rgba(201,168,76,.1);border-radius:6px;font-size:12px;color:#665500;line-height:1.7;}
+.explanation-point strong{color:var(--navy);}
+
+.result-badge{display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:8px;margin-top:14px;font-weight:700;font-size:14px;animation:pop .3s ease;}
+.correct-badge{background:#e8f5ee;color:var(--green);}
+.wrong-badge{background:#fdecea;color:var(--red);}
+
+.next-btn{width:100%;margin-top:14px;padding:15px;background:var(--navy);color:var(--gold);border:2px solid var(--gold);border-radius:10px;font-family:'Noto Serif JP',serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;}
+.next-btn:active{background:var(--gold);color:var(--navy);}
+
+/* ===== 結果画面 ===== */
+.result-screen{background:var(--card-bg);border-radius:16px;padding:32px 22px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4);animation:slideUp .4s ease;}
+.result-badge-top{display:inline-block;background:var(--gold);color:var(--navy);font-size:11px;font-weight:700;letter-spacing:.15em;padding:4px 14px;border-radius:2px;margin-bottom:10px;}
+.result-title{font-family:'Noto Serif JP',serif;font-size:20px;font-weight:900;color:var(--navy);margin-bottom:4px;}
+.result-score-big{font-family:'Noto Serif JP',serif;font-size:64px;font-weight:900;color:var(--gold);line-height:1;margin:14px 0 4px;}
+.result-score-big span{font-size:24px;color:var(--gray);}
+.result-pct{font-size:28px;font-weight:700;color:var(--gold);margin-bottom:12px;}
+.result-comment{font-size:13px;color:#666;line-height:1.8;margin-bottom:18px;}
+
+/* 分野別スコア */
+.cat-scores{text-align:left;margin-bottom:18px;border-top:1px solid #f0ede5;padding-top:16px;}
+.cat-score-title{font-size:11px;font-weight:700;color:var(--gray);letter-spacing:.1em;margin-bottom:10px;}
+.cat-score-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.cat-score-name{font-size:12px;color:#555;width:90px;flex-shrink:0;}
+.cat-score-bar-wrap{flex:1;height:7px;background:#eee;border-radius:4px;overflow:hidden;}
+.cat-score-bar{height:100%;border-radius:4px;transition:width .8s ease .2s;}
+.cat-score-val{font-size:11px;color:#999;width:36px;text-align:right;flex-shrink:0;}
+
+.wrong-notice{border-radius:10px;padding:12px 16px;margin-bottom:18px;font-size:13px;text-align:left;}
+.wrong-notice.has-wrong{background:#fff8f8;border:1px solid #f5ddd9;color:var(--red);}
+.wrong-notice.all-clear{background:#f0faf5;border:1px solid #b2dfc9;color:var(--green);}
+.btn-group{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+.result-btn{padding:11px 20px;background:var(--navy);color:var(--gold);border:2px solid var(--gold);border-radius:10px;font-family:'Noto Serif JP',serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
+.result-btn:active{background:var(--gold);color:var(--navy);}
+.result-btn.orange{border-color:var(--orange);color:var(--orange);}
+.result-btn.orange:active{background:var(--orange);color:#fff;}
+
+/* 空状態 */
+.empty-state{background:var(--card-bg);border-radius:16px;padding:44px 22px;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,.4);}
+.empty-icon{font-size:44px;margin-bottom:14px;}
+.empty-title{font-family:'Noto Serif JP',serif;font-size:18px;font-weight:700;color:var(--navy);margin-bottom:8px;}
+.empty-text{font-size:13px;color:#888;line-height:1.8;margin-bottom:20px;}
+
+/* PWAインストール案内 */
+.pwa-hint{text-align:center;margin-top:20px;padding:12px 16px;background:rgba(253,246,227,.05);border:1px solid rgba(201,168,76,.15);border-radius:10px;}
+.pwa-hint p{font-size:12px;color:rgba(253,246,227,.45);line-height:1.7;}
+.pwa-hint strong{color:rgba(201,168,76,.7);}
+
+@keyframes slideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pop{0%{transform:scale(.9)}60%{transform:scale(1.05)}100%{transform:scale(1)}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ===== スタート画面 ===== -->
+<div id="start-screen">
+  <div class="logo-wrap">
+    <div class="logo-badge">FP QUIZ</div>
+    <div class="logo-title">FP2級<br>過去問チャレンジ</div>
+    <div class="logo-sub">隙間時間に数問から挑戦できます</div>
+  </div>
+
+  <!-- 復習バナー（問題あるときのみ表示） -->
+  <div class="review-banner" id="review-banner" onclick="startReviewMode()" style="display:none;">
+    <div class="review-banner-left">
+      <div class="review-icon">🔁</div>
+      <div class="review-text">
+        <strong id="review-banner-text">復習リスト 0問</strong>
+        <span>間違えた問題をもう一度</span>
+      </div>
+    </div>
+    <div class="review-arrow">›</div>
+  </div>
+
+  <!-- 統計 -->
+  <div class="stats-card">
+    <div class="stat-item">
+      <div class="stat-num" id="stat-total">0</div>
+      <div class="stat-label">累計解答</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" id="stat-correct">0</div>
+      <div class="stat-label">累計正解</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" id="stat-pct">－</div>
+      <div class="stat-label">正答率</div>
+    </div>
+  </div>
+
+  <!-- 分野選択 -->
+  <div class="section-label">📂 分野を選ぶ</div>
+  <div class="cat-grid" id="cat-grid">
+    <div class="cat-card cat-all selected" data-cat="all" onclick="selectCat(this)">
+      <div class="cat-name">🗂 すべての分野</div>
+      <div class="cat-count">全120問</div>
+    </div>
+    <div class="cat-card" data-cat="ライフプランニングと資金計画" onclick="selectCat(this)">
+      <div class="cat-name">👨‍👩‍👧 ライフ</div>
+      <div class="cat-count">20問</div>
+    </div>
+    <div class="cat-card" data-cat="金融資産運用" onclick="selectCat(this)">
+      <div class="cat-name">📈 金融</div>
+      <div class="cat-count">20問</div>
+    </div>
+    <div class="cat-card" data-cat="タックスプランニング" onclick="selectCat(this)">
+      <div class="cat-name">🧾 税金</div>
+      <div class="cat-count">20問</div>
+    </div>
+    <div class="cat-card" data-cat="リスク管理" onclick="selectCat(this)">
+      <div class="cat-name">🛡 保険</div>
+      <div class="cat-count">20問</div>
+    </div>
+    <div class="cat-card" data-cat="不動産" onclick="selectCat(this)">
+      <div class="cat-name">🏠 不動産</div>
+      <div class="cat-count">20問</div>
+    </div>
+    <div class="cat-card" data-cat="相続・事業承継" onclick="selectCat(this)">
+      <div class="cat-name">📜 相続</div>
+      <div class="cat-count">20問</div>
+    </div>
+  </div>
+
+  <!-- 出題数選択 -->
+  <div class="section-label">🔢 何問やる？</div>
+  <div class="count-row">
+    <button class="count-btn selected" data-n="5" onclick="selectCount(this)">5問</button>
+    <button class="count-btn" data-n="10" onclick="selectCount(this)">10問</button>
+    <button class="count-btn" data-n="20" onclick="selectCount(this)">20問</button>
+    <button class="count-btn" data-n="0" onclick="selectCount(this)">全問</button>
+  </div>
+
+  <button class="start-btn" id="start-btn" onclick="startQuiz()">▶ スタート</button>
+
+  <div class="pwa-hint">
+    <p>📱 iPhoneの場合：Safari で開いて<br><strong>「ホーム画面に追加」</strong> するとアプリのように使えます</p>
+  </div>
+</div>
+
+<!-- ===== クイズ画面 ===== -->
+<div id="quiz-screen">
+  <div class="quiz-header">
+    <button class="back-btn" onclick="goHome()">← ホーム</button>
+    <div class="quiz-title-bar">
+      <div class="quiz-mode-label" id="quiz-mode-label">通常モード</div>
+      <div class="quiz-progress-mini" id="quiz-progress-mini"></div>
+    </div>
+  </div>
+
+  <div class="score-bar">
+    <div class="score-item"><div class="score-num" id="correct-count">0</div><div class="score-label">正解</div></div>
+    <div class="progress-wrap">
+      <div class="progress-text" id="progress-text">1 / 5</div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:20%"></div></div>
+    </div>
+    <div class="score-item"><div class="score-num" id="wrong-count">0</div><div class="score-label">不正解</div></div>
+  </div>
+
+  <div id="main-content"></div>
+</div>
+
+</div><!-- /app -->
+
+<script>
+// ========== 問題データ ==========
+const allQuestions=[
+{id:1,category:'ライフプランニングと資金計画',q:'協会けんぽの健康保険における傷病手当金の支給額と支給期間について、正しいものはどれか。',choices:['支給開始日から通算して1年6か月、標準報酬日額の3分の2が支給される','支給開始日から連続して2年間、標準報酬日額の3分の2が支給される','支給開始日から通算して1年6か月、標準報酬日額の4分の3が支給される','支給開始日から最長1年間、標準報酬月額の2分の1が支給される'],answer:0,explanation:'傷病手当金の1日あたりの支給額は「支給開始日以前12か月の標準報酬月額の平均÷30×2/3」で計算されます。2022年1月の改正により、支給期間は支給開始日から「通算」して1年6か月となりました。入院・退院を繰り返しても通算1年6か月で打ち切りとなります。',point:'支給額＝標準報酬日額×2/3。支給期間は「通算」1年6か月（2022年改正）。連続ではなく通算という点が頻出。待期3日間（連続）は支給なし。4日目から支給開始。'},
+{id:2,category:'ライフプランニングと資金計画',q:'健康保険の任意継続被保険者制度に関する記述として、正しいものはどれか。',choices:['退職後30日以内に申請すれば最長2年間健康保険を継続できる','退職翌日から20日以内に申請すれば最長2年間健康保険を継続できる','退職翌日から20日以内に申請するが、保険料は事業主と折半で負担する','退職後60日以内に申請すれば最長1年間健康保険を継続できる'],answer:1,explanation:'任意継続被保険者は退職日の翌日から20日以内に申請することで、最長2年間健康保険に加入し続けることができます。保険料は全額自己負担（事業主負担なし）で、標準報酬月額は退職時または全加入者の平均のいずれか低い方が上限となります。',point:'任意継続：退職翌日から20日以内申請・最長2年・保険料全額自己負担。傷病手当金・出産手当金の新規請求は不可（在職中から継続受給中のものは可）。申請期限20日間は厳格で延長不可。'},
+{id:3,category:'ライフプランニングと資金計画',q:'国民年金の保険料免除期間（平成21年4月以降）の老齢基礎年金への反映割合として、正しいものはどれか。',choices:['全額免除期間は受給資格期間に算入されず、年金額にも全く反映されない','全額免除期間は保険料納付済み期間の4分の1として年金額に反映される','全額免除期間は保険料納付済み期間の2分の1として年金額に反映される','全額免除期間は保険料納付済み期間の4分の3として年金額に反映される'],answer:2,explanation:'平成21年4月以降、全額免除期間は国庫負担分（2分の1）として年金額に反映されます。4分の3免除は8分の5、半額免除は4分の3（8分の6）、4分の1免除は8分の7として反映されます。いずれも受給資格期間（10年）に算入されます。',point:'全額免除＝2分の1反映（国庫負担分のみ）。未納と異なり申請免除は年金額に反映・受給資格期間にもカウント。平成21年3月以前の全額免除は3分の1反映。免除の段階別反映割合は頻出。'},
+{id:4,category:'ライフプランニングと資金計画',q:'老齢基礎年金の繰上げ・繰下げ受給（2022年4月改正後）に関する記述として、正しいものはどれか。',choices:['繰上げは1か月0.5%減額・繰下げは1か月0.7%増額・繰下げ上限は70歳','繰上げは1か月0.4%減額・繰下げは1か月0.5%増額・繰下げ上限は70歳','繰上げは1か月0.3%減額・繰下げは1か月0.7%増額・繰下げ上限は75歳','繰上げは1か月0.4%減額・繰下げは1か月0.7%増額・繰下げ上限は75歳'],answer:3,explanation:'2022年4月改正により、繰上げは1か月につき0.4%減額（最大24%減：60歳0か月受給）、繰下げは1か月につき0.7%増額（最大84%増：75歳0か月受給）となりました。旧制度では繰上げ0.5%/月、繰下げ上限70歳でした。繰上げ受給後は障害基礎年金を受け取れなくなる点に注意が必要です。',point:'繰上げ：0.4%/月減・60歳から（旧0.5%）。繰下げ：0.7%/月増・最大75歳（旧70歳）・最大84%増。2022年4月改正が頻出。繰上げの注意：障害基礎年金・寡婦年金が受けられなくなる。'},
+{id:5,category:'ライフプランニングと資金計画',q:'在職老齢年金（2022年4月改正後）の支給停止基準について、正しいものはどれか。',choices:['60歳以上一律50万円超で超過分の2分の1が支給停止となる','60〜64歳は合計28万円超・65歳以上は合計47万円超で支給停止となる','60歳以上一律60万円超で超過分の2分の1が支給停止となる','70歳以上には在職老齢年金の規定は適用されない'],answer:0,explanation:'2022年4月改正により、60歳以上の在職老齢年金の支給停止基準額が一律50万円（2024年度額）に統一されました。総報酬月額相当額と老齢厚生年金の基本月額の合計が50万円を超えた場合、超過額の2分の1が支給停止されます。70歳以上も適用されます（保険料負担なし）。',point:'在職老齢年金：2022年4月改正で60歳以上一律「50万円基準」に統一。旧制度は60〜64歳が28万円・65歳以上が47万円で別基準。超過分の1/2が停止。70歳以上も適用あり。'},
+{id:6,category:'ライフプランニングと資金計画',q:'雇用保険の基本手当について、特定受給資格者（会社都合退職等）と一般離職者（自己都合退職等）の違いとして正しいものはどれか。',choices:['両者とも待機7日後に給付が始まり、最大給付日数も同じ150日','特定受給は待機7日後すぐ給付・最大330日。一般は待機後2か月の給付制限あり','2023年改正により自己都合の給付制限は3か月から2か月（全員対象）になった','特定受給資格者と一般離職者の最大給付日数はどちらも150日で同じ'],answer:1,explanation:'特定受給資格者（会社都合退職等）は待機期間7日後すぐに給付が始まり、年齢・被保険者期間によって最大330日（45〜59歳・20年以上）給付されます。2023年改正で自己都合退職の給付制限期間が3か月から2か月に短縮されました（5年間に2回まで）。',point:'特定受給資格者：待機7日後すぐ給付・最大330日。自己都合：待機7日＋給付制限2か月（2023年改正で3か月→2か月に短縮）・最大150日。5年で2回を超える自己都合は給付制限3か月のまま。'},
+{id:7,category:'ライフプランニングと資金計画',q:'介護保険制度の財源構成と保険者について、正しいものはどれか。',choices:['財源はすべて保険料で賄われ、保険者は市区町村（特別区含む）','財源は公費100%で賄われ、保険者は都道府県','財源は公費50%・保険料50%で構成され、保険者は市区町村（特別区含む）','財源は公費50%・保険料50%で構成され、保険者は後期高齢者医療広域連合'],answer:2,explanation:'介護保険の財源は公費50%（国25%・都道府県12.5%・市区町村12.5%）と保険料50%で構成されます。保険者は市区町村（特別区を含む）です。保険料は第1号被保険者（65歳以上）と第2号被保険者（40〜64歳）が負担しますが、その割合は人口比で定期的に見直されます。',point:'介護保険：保険者＝市区町村。財源＝公費50%（国25%・都道府県12.5%・市区町村12.5%）＋保険料50%。第1号（65歳以上）は原因不問・第2号（40〜64歳）は特定疾病のみ対象。'},
+{id:8,category:'ライフプランニングと資金計画',q:'高額療養費制度における70歳未満の一般所得者の自己負担限度額の計算式として、正しいものはどれか。',choices:['57,600円の定額が自己負担限度額（多数回該当の場合も同額）','80,100円の定額が自己負担限度額（多数回該当の場合は44,400円）','総医療費の3割が自己負担の上限額（上限の上限は設定されない）','80,100円＋（総医療費－267,000円）×1%（多数回該当の場合は44,400円）'],answer:3,explanation:'70歳未満の一般所得者（年収約370万〜770万円）の自己負担限度額は「80,100円＋（総医療費－267,000円）×1%」です。同じ月に複数の医療機関を受診した場合も合算できます。同一世帯で直近12か月間に3回以上高額療養費が支給された場合（多数回該当）は4回目以降44,400円に軽減されます。',point:'高額療養費（70歳未満・一般）：80,100円＋（総医療費－267,000円）×1%。所得区分は5段階。多数回該当（直近12か月で4回目以降）は44,400円。外来・入院は別計算→合算で申請可。'},
+{id:9,category:'ライフプランニングと資金計画',q:'健康保険の出産育児一時金について、正しいものはどれか（2023年4月以降）。',choices:['産科医療補償制度加入機関での出産は1児につき50万円・双子は2人分支給','産科医療補償制度加入機関での出産は1児につき42万円・双子は2人分支給','健康保険加入者のみ対象で国民健康保険加入者は対象外となる','支給額は50万円だが申請後に自分で医療機関へ支払う方法のみ利用可能'],answer:0,explanation:'2023年4月から出産育児一時金が増額され、産科医療補償制度加入医療機関での出産は1児につき50万円（未加入機関は48.8万円）が支給されます。国民健康保険にも同様の制度があります。双子の場合は2人分（100万円）が支給されます。直接支払制度により医療機関が代わりに受け取ることが一般的です。',point:'出産育児一時金：2023年4月から50万円（産科医療補償制度加入機関）。健保・国保ともに対象。直接支払制度が一般的（医療機関が直接受取）。多胎は人数分支給。2023年の改正額が頻出。'},
+{id:10,category:'ライフプランニングと資金計画',q:'遺族基礎年金の受給対象者として、正しいものはどれか。',choices:['配偶者であれば子の有無にかかわらず遺族基礎年金を受給できる','「子のある配偶者」または「子」のみが受給対象（子は18歳年度末まで）','配偶者・子・父母・祖父母がすべて遺族基礎年金の受給対象となる','子のない配偶者は遺族基礎年金も遺族厚生年金も受給できない'],answer:1,explanation:'遺族基礎年金は「子のある配偶者」または「子」のみが受給対象です。「子」とは18歳到達年度末日まで（1・2級障害の場合は20歳未満）の未婚の子です。子のない配偶者は遺族基礎年金を受給できませんが、厚生年金加入者の遺族であれば遺族厚生年金は受給できます。',point:'遺族基礎年金：「子のある配偶者」または「子」のみ受給可。子のない配偶者は受給不可（遺族厚生年金は受給可）。子の年齢：18歳年度末まで（障害1・2級は20歳未満）。「子のある配偶者」という要件が頻出ポイント。'},
+{id:11,category:'ライフプランニングと資金計画',q:'老齢厚生年金の加給年金と振替加算に関する記述として、正しいものはどれか。',choices:['厚生年金被保険者期間10年以上・60歳未満の配偶者がいれば加給年金が加算される','加給年金は配偶者が65歳になっても終了せず、そのまま支給が継続される','厚生年金20年以上・65歳未満の配偶者がいれば加給年金が加算。配偶者65歳以降は振替加算へ','振替加算は被保険者本人の老齢基礎年金に加算され、全対象者で金額は同額'],answer:2,explanation:'加給年金は厚生年金被保険者期間20年以上の者が老齢厚生年金を受給し始めた際、生計を維持している65歳未満の配偶者がいれば加算されます。配偶者が65歳になると加給年金は終了し、配偶者自身の老齢基礎年金に振替加算が加算されます。振替加算額は配偶者の生年月日によって異なります。',point:'加給年金の要件：厚生年金20年以上・受給権者の配偶者が65歳未満で生計維持。配偶者65歳到達→加給年金終了→振替加算（配偶者の老齢基礎年金に加算）へ移行。被保険者期間20年が重要要件。'},
+{id:12,category:'ライフプランニングと資金計画',q:'国民年金の付加年金に関する記述として、正しいものはどれか。',choices:['第1号被保険者が月額200円の付加保険料を納付して加入できる','第1号・第2号・第3号被保険者のいずれも付加年金に加入できる','付加年金は国民年金基金に加入していても同時に加入することができる','第1号が月400円を納付→年金額に200円×納付月数を上乗せ（基金との併用不可）'],answer:3,explanation:'付加年金は国民年金第1号被保険者（任意加入被保険者も可）が月額400円の付加保険料を納めることで、老齢基礎年金に「200円×付加保険料納付月数」が上乗せされます。2年で元が取れる計算です（400円×24か月＝9,600円支払い、200円×24か月＝4,800円/年受取）。国民年金基金に加入している場合は付加年金に加入できません。',point:'付加年金：第1号のみ・月400円→年金額に200円×納付月数を加算。2年で元が取れる。国民年金基金と併用不可。任意加入被保険者も加入可。簡易計算が試験に出る。'},
+{id:13,category:'ライフプランニングと資金計画',q:'住宅金融支援機構の「フラット35」に関する記述として、正しいものはどれか。',choices:['全期間固定金利・融資率90%以内・上限8,000万円・15〜35年・保証人不要','変動金利型・融資率80%以内・上限5,000万円・10〜35年・保証人不要','全期間固定金利・融資率90%以内・上限8,000万円・20〜35年・保証人必要','固定期間選択型・融資率80%以内・上限5,000万円・15〜35年・保証人不要'],answer:0,explanation:'フラット35は住宅金融支援機構と民間金融機関が提携した全期間固定金利の住宅ローンです。融資率は建設費・購入価額の90%以内（自己資金10%以上が必要）、融資限度額は8,000万円、返済期間は15〜35年です。保証人・保証料は不要ですが、住宅が一定の技術基準を満たす必要があります。',point:'フラット35：全期間固定金利・融資率90%以内（自己資金10%以上）・上限8,000万円・15〜35年・保証人不要・保証料不要。民間の変動金利ローンとの違いを整理。金利上昇リスクを負わない点がメリット。'},
+{id:14,category:'ライフプランニングと資金計画',q:'ライフプランニングで使用する6つの係数のうち「現価係数」の説明として正しいものはどれか。',choices:['現在の元本が将来いくらになるかを求める係数（終価係数）','将来の目標額を受け取るために現在いくら必要かを求める係数（終価係数の逆数）','毎年一定額を積み立てた場合の将来合計額を求める係数（年金終価係数）','現在の元本から毎年の受取額を求める係数（資本回収係数）'],answer:1,explanation:'現価係数は「将来の一定額を受け取るために現在いくら用意すればよいか」を計算するときに使います（終価係数の逆数）。例えば10年後に100万円受け取るために必要な現在の元本を求める際に使用します。終価係数（現在→将来）と対になる概念です。',point:'6係数：終価係数（現在→将来）・現価係数（将来→現在）・年金終価係数（毎年積立→将来合計）・減債基金係数（将来の目標→毎年の積立額）・年金現価係数（毎年受取→必要な現在元本）・資本回収係数（元本→毎年の受取額）。セットで整理。'},
+{id:15,category:'ライフプランニングと資金計画',q:'住宅ローンの繰上げ返済の種類に関する記述として、正しいものはどれか。',choices:['返済額軽減型の方が同額繰上げ時に利息軽減効果が大きい','両者の利息軽減効果は全く同じで、返済期間のみが異なる','返済期間短縮型は返済期間を短縮する方法で、同額なら利息軽減効果が大きい','繰上げ返済すると元本・利息の残額を一括返済しなければならない'],answer:2,explanation:'繰上げ返済には「返済期間短縮型」（毎月の返済額そのまま・期間を短縮）と「返済額軽減型」（返済期間そのまま・毎月の返済額を減らす）の2種類があります。同じ金額を繰り上げた場合、返済期間短縮型の方が利息の軽減効果は大きくなります。住宅ローン控除を受けている場合は控除終了後に繰り上げる方が有利なケースがあります。',point:'繰上げ返済：期間短縮型（利息軽減効果◎・月々は同額）vs 返済額軽減型（月々の負担減・利息軽減効果は小）。期間短縮型の方が同額なら利息節約額が大きい。住宅ローン控除との兼ね合いも要確認。'},
+{id:16,category:'ライフプランニングと資金計画',q:'後期高齢者医療制度に関する記述として、正しいものはどれか。',choices:['被扶養者だった者は75歳になっても新たに個別加入しなくてよい','75歳以上を対象とし、保険者は市区町村（特別区含む）である','75歳以上全員が加入し、一部負担金は所得に関わらず一律1割','75歳以上（一定障害者は65歳以上）全員が個人加入・保険者は広域連合'],answer:3,explanation:'後期高齢者医療制度は75歳以上（一定の障害がある場合は65歳以上）の全員が個人単位で加入します。保険者は都道府県ごとの後期高齢者医療広域連合です。一部負担金は原則1割ですが、2022年10月から一定以上所得者は2割、現役並み所得者は3割となりました。被扶養者であった者も75歳になると個人として加入します。',point:'後期高齢者医療：75歳以上・個人単位加入・保険者＝広域連合。一部負担：1割（一定所得以上は2割・現役並みは3割）。2022年10月から「2割負担」追加が頻出。被扶養者だった者も75歳で個人加入。'},
+{id:17,category:'ライフプランニングと資金計画',q:'育児休業期間中の社会保険料（健康保険・厚生年金）の取扱いについて、正しいものはどれか。',choices:['被保険者・事業主ともに免除で、免除期間は年金額に納付済み扱いで反映される','被保険者分の保険料のみ免除・事業主負担分は免除されない','被保険者・事業主ともに免除だが、年金額の計算には免除期間は反映されない','産前産後休業中は免除されるが育児休業中は社会保険料の免除はない'],answer:0,explanation:'育児休業等期間中は被保険者・事業主双方の健康保険料・厚生年金保険料が免除されます。免除期間は将来の年金額の計算において保険料を納付したものとして扱われます。2022年10月からは月内14日以上の育休を取得した場合も月単位で保険料が免除されます。',point:'育休中の社会保険料：被保険者・事業主ともに免除。年金額計算は納付済み扱い。2022年10月改正：月内14日以上の育休で月保険料免除。産後パパ育休（出生時育児休業）も対象。'},
+{id:18,category:'ライフプランニングと資金計画',q:'障害基礎年金・障害厚生年金の障害認定日に関する記述として、正しいものはどれか。',choices:['障害認定日は初診日から6か月後・保険料要件は初診日時点で判断される','障害認定日は初診日から1年6か月後（または症状固定日）・保険料要件は初診日前日時点','障害認定日は初診日から1年6か月後・保険料要件は初診日当日時点で判断される','障害認定日は担当医師が任意に設定でき・保険料要件は初診日前日時点'],answer:1,explanation:'障害認定日は「初診日から1年6か月を経過した日」またはそれ以前に傷病が治った（症状が固定した）日です。保険料納付要件は初診日の前日時点で、直近1年間に未納がないこと（または加入期間の3分の2以上を納付していること）を満たす必要があります。',point:'障害認定日：初診日から1年6か月経過日（または症状固定日）。保険料納付要件：初診日前日時点で直近1年間の未納なし（または加入期間の2/3以上納付）。事後重症請求（65歳前）も要確認。'},
+{id:19,category:'ライフプランニングと資金計画',q:'ライフプランニングにおけるキャッシュフロー表の作成方法として、正しいものはどれか。',choices:['将来価値＝現在額×(1+変動率)^年数・資産残高は前年末残高と当年収支の合計のみ','将来価値は物価変動を考慮せず現在の金額を使用・資産残高は前年末残高＋当年収支','将来価値＝現在額×(1+変動率)^年数・資産残高＝前年末残高×(1+運用利率)＋当年収支','キャッシュフロー表は過去の収支実績を記録する表で将来予測には使用しない'],answer:2,explanation:'キャッシュフロー表では将来の収入・支出を「現在の金額×(1＋変動率)^経過年数」で算出します。金融資産残高は「前年末残高×(1＋運用利率)＋当年の年間収支」で計算します。これにより将来の各時点での財務状況を把握し、問題点を事前に発見できます。',point:'キャッシュフロー表の計算：将来価値＝現在額×(1＋変動率)^年数。金融資産残高＝前年末残高×(1＋運用利率)＋当年収支。個人バランスシートとセットで理解。実際の数値計算問題も出題される。'},
+{id:20,category:'ライフプランニングと資金計画',q:'日本学生支援機構の奨学金に関する記述として、正しいものはどれか。',choices:['第一種奨学金も第二種奨学金も返還不要の給付型奨学金に分類される','第一種は無利子の貸与型・第二種は在学中から利息が発生する有利子貸与型','第一種は成績基準あり・第二種は所得要件なしで誰でも申請できる','第一種は無利子・第二種は有利子（在学中は無利息）・どちらも貸与型で返還義務あり'],answer:3,explanation:'日本学生支援機構の奨学金は、第一種（無利子・成績・家計基準あり）と第二種（有利子・年利上限3%・在学中は無利息）があります。いずれも貸与型で返還義務があります。なお給付型奨学金（返還不要）も設けられていますが、第一種・第二種とは別制度です。',point:'奨学金：第一種（無利子）・第二種（有利子・在学中は無利息）＝貸与型で返還義務あり。給付型は別制度（返還不要）。FP相談では奨学金の返還計画を含めた教育費・ライフプランの設計が重要。'},
+{id:21,category:'リスク管理',q:'生命保険会社の「3利源」について、正しいものはどれか。',choices:['運用実績>予定利率で利差益、実際の死亡率<予定死亡率で死差益、実事業費<予定事業費で費差益','運用実績<予定利率で利差益、実際の死亡率>予定死亡率で死差益（逆方向で発生する）','3利源は有配当保険のみに存在し、無配当保険には利差益等の概念は適用されない','利差益・死差益・費差益の3利源は損害保険会社にのみ適用される概念である'],answer:0,explanation:'生命保険の3利源は①利差益（実際の運用利回り＞予定利率）、②死差益（実際の死亡率＜予定死亡率）、③費差益（実際の事業費＜予定事業費）です。これらの剰余金は契約者への配当として還元されます（有配当保険の場合）。',point:'3利源：利差益（運用）・死差益（死亡率）・費差益（事業費）。各利源の「上回る・下回る」の方向性を正確に覚える。有配当保険は剰余金を配当として還元、無配当保険は保険料が割安。'},
+{id:22,category:'リスク管理',q:'生命保険の死亡保険金と税金の関係について、「契約者：夫、被保険者：妻、受取人：夫」の場合に課税される税金として正しいものはどれか。',choices:['契約者と受取人が同一なので、受け取る死亡保険金は相続税の課税対象となる','契約者＝受取人≠被保険者の場合、死亡保険金は一時所得として所得税の課税対象となる','契約者・被保険者・受取人がすべて異なる場合にのみ贈与税の課税対象となる','生命保険の死亡保険金は受取人の属性にかかわらず非課税で申告不要'],answer:1,explanation:'契約者と受取人が同一人物（夫）で被保険者が異なる（妻）場合、受取人が自ら保険料を負担して受け取る死亡保険金は一時所得として所得税の対象となります。相続税：契約者＝被保険者≠受取人、贈与税：契約者・被保険者・受取人がすべて異なる場合に課税されます。',point:'死亡保険金の課税3パターン：①契約者＝被保険者→相続税（受取人が相続人なら非課税枠500万円×法定相続人数）。②契約者＝受取人≠被保険者→所得税（一時所得）。③3者がすべて異なる→贈与税。'},
+{id:23,category:'リスク管理',q:'生命保険料控除（新制度：2012年1月以降の契約）について、所得税における各控除の上限額として正しいものはどれか。',choices:['3つの控除枠を合算して最高10万円が所得税における生命保険料控除額','各控除枠の上限は5万円で、3枠合計の最高控除額は15万円','一般・介護医療・個人年金の各枠それぞれ最高4万円・合計最高12万円が控除される','一般生命保険料控除のみが適用され、最高4万円が所得税から控除される'],answer:2,explanation:'2012年1月以降の新制度では、①一般生命保険料控除（死亡保障系）、②介護医療保険料控除（医療・介護保険）、③個人年金保険料控除（個人年金保険）の3つの枠がそれぞれ最高4万円（住民税は2万8千円）、合計最高12万円（住民税は7万円）が控除されます。',point:'新制度（2012年以降）：3枠×最高4万円（所得税）＝合計最高12万円。旧制度（2011年以前）：2枠×最高5万円＝合計最高10万円。新旧混在の場合は合計最高12万円。住民税は各枠2万8千円・合計7万円。'},
+{id:24,category:'リスク管理',q:'変額保険の特徴として、正しいものはどれか。',choices:['変額保険は解約返戻金も死亡保険金も最低保証があり元本割れはしない','変額保険は一般勘定で運用され、運用リスクは保険会社が負担する','変額保険は特別勘定で運用され、死亡保険金も解約返戻金もともに最低保証がある','変額保険は特別勘定で運用・運用実績で死亡保険金等が変動・運用リスクは契約者負担'],answer:3,explanation:'変額保険は保険料が特別勘定（分離勘定）で株式・債券等に投資されます。運用実績により死亡保険金・解約返戻金・満期保険金が変動し、運用リスクは契約者が負担します。死亡保険金には最低保証（基本保険金額）がありますが、解約返戻金には最低保証がなく払込保険料を下回る場合もあります。',point:'変額保険：特別勘定（分離勘定）で運用・運用リスクは契約者負担。死亡保険金は最低保証あり・解約返戻金は最低保証なし。定額保険は一般勘定で運用・運用リスクは保険会社負担。'},
+{id:25,category:'リスク管理',q:'がん保険の特徴として、正しいものはどれか。',choices:['がん保険には責任開始日から90日間の免責期間があり、この期間中のがんは給付されない','がん保険には他の生命保険と同様に免責期間はなく責任開始日から即時に保障される','がん保険の免責期間は30日間のみで、それ以降はがん診断があれば給付される','がん保険の免責期間は180日（6か月）で、この期間中のがん診断は給付されない'],answer:0,explanation:'がん保険には責任開始日から通常90日間（3か月）の免責期間（不担保期間）が設けられています。この期間中にがんと診断された場合は保険契約が消滅し、払込保険料が返還されます。他の生命保険にはない独自の特徴です。告知の時点でがんに罹患していた場合は加入できません。',point:'がん保険の免責期間：責任開始日から90日（3か月）。この期間中のがん診断は保険消滅＋払込保険料返還。他の保険にはない特有のルール。がん診断給付金・入院給付金・手術給付金・通院給付金の種類も整理。'},
+{id:26,category:'リスク管理',q:'地震保険に関する記述として、正しいものはどれか。',choices:['地震保険は単独でも加入でき、損害区分は全損・半損・一部損の3段階','地震保険は火災保険への付帯のみ加入可・保険金額は火災保険の30〜50%・損害区分は4段階','地震保険は火災保険への付帯のみ加入可・保険金額は火災保険の50〜80%・損害区分は3段階','地震保険は単独加入可・保険金額は火災保険の30〜50%・民間保険会社のみが運営する'],answer:1,explanation:'地震保険は単独では加入できず、火災保険に付帯する形で加入します。保険金額は火災保険の30〜50%の範囲で設定します。2017年から損害区分が「全損・大半損（保険金額の60%）・小半損（30%）・一部損（5%）」の4段階になりました。国と民間保険会社が共同で運営します。',point:'地震保険：火災保険への付帯が必須・保険金額は火災保険の30〜50%。損害区分4段階：全損（100%）・大半損（60%）・小半損（30%）・一部損（5%）。2017年改正で3段階→4段階に変更。政府と民間の共同運営。'},
+{id:27,category:'リスク管理',q:'自動車損害賠償責任保険（自賠責保険）の補償内容と支払い限度額として、正しいものはどれか。',choices:['自賠責保険は対人・対物両方を補償し、死亡は最高3,000万円が支払い限度額','自賠責保険は任意加入で、死亡は最高2,000万円・傷害は最高100万円が限度額','強制加入で対人のみ補償・死亡3,000万円・後遺障害最高4,000万円・傷害120万円が限度額','強制加入で対人のみ補償・死亡は最高2,000万円・傷害は最高60万円が支払い限度額'],answer:2,explanation:'自賠責保険はすべての自動車に加入が義務付けられた強制保険で、対人賠償のみを補償します。支払い限度額は死亡3,000万円・後遺障害最高4,000万円（等級によって異なる）・傷害120万円です。対物賠償・車両損害・自分のケガはカバーされないため、任意保険との組み合わせが必要です。',point:'自賠責：強制加入・対人のみ。限度額：死亡3,000万円・後遺障害最高4,000万円・傷害120万円。対物・自損・車両は対象外→任意保険で補完。未加入で運転すると刑事罰（1年以下の懲役または50万円以下の罰金）。'},
+{id:28,category:'リスク管理',q:'生命保険の「払済保険」と「延長（定期）保険」の比較として、正しいものはどれか。',choices:['払済保険は保険期間を短縮し保険金額は変えずに以後の保険料払込を不要にする方法','延長保険は保険金額を減額して保険期間を変えずに以後の保険料払込を不要にする方法','払済・延長ともに解約返戻金を使用せず以後の保険料払込を継続していく方法','払済保険は保険金額を減額して継続・延長保険は保険金額そのままで期間を短縮する方法'],answer:3,explanation:'払済保険は以後の保険料払い込みを止め、その時点の解約返戻金を元手に保険金額を減額した同種の保険を継続します。延長（定期）保険は保険金額をそのままに、解約返戻金を元手として保険期間を短縮した定期保険に切り替える方法です。どちらも解約返戻金を活用します。',point:'払済保険：保険金額↓・保険期間は継続・同種の保険。延長保険：保険金額→変わらず・保険期間↓・定期保険に変更。どちらも以後の保険料払い込み不要。特約は通常消滅。混同しやすいため対比で整理。'},
+{id:29,category:'リスク管理',q:'生命保険契約者保護機構に関する記述として、正しいものはどれか。',choices:['破綻時に高予定利率契約を除き責任準備金の90%補償が目安（損保は別組織対応）','破綻時は責任準備金の100%が補償され、契約者に損失は一切生じない','破綻後3年間は全額保護され、3年経過後は責任準備金の90%補償に縮小される','生命保険と損害保険は同じ保護機構が対応し、補償水準も同一である'],answer:0,explanation:'生命保険契約者保護機構は生命保険会社が破綻した際に、他の保険会社への契約移転等を通じて契約者を保護します。移転後の補償水準は高予定利率契約を除き責任準備金の90%が目安です。損害保険は別組織（損害保険契約者保護機構）で対応します。',point:'生命保険契約者保護機構：破綻時に責任準備金の90%を補償（目安）。高予定利率契約は削減の可能性あり。損害保険は「損害保険契約者保護機構」が別途対応（自賠責・地震保険は100%補償）。外国保険会社も国内で事業を行う場合は加入義務あり。'},
+{id:30,category:'リスク管理',q:'収入保障保険の特徴として、正しいものはどれか。',choices:['死亡時に保険金を一括で受け取る保険で、受取総額は保険期間に関わらず一定','死亡時に年金形式で受け取れ、残存保険期間が短いほど受取総額が少なくなる','死亡時に年金形式で受け取れ、残存保険期間が長いほど受取総額が少なくなる','死亡時に年金形式で受け取れ、受取総額は保険期間にかかわらず一定額'],answer:1,explanation:'収入保障保険は被保険者が死亡・高度障害状態になった際に、残りの保険期間中、毎月（または毎年）一定額の保険金を年金形式で受け取れる保険です。保険期間の満了に近づくほど受取総額が減少する逓減型の保険で、一般的に掛け捨て型で保険料が割安です。',point:'収入保障保険：死亡時に年金形式で受取・残存期間が短いほど受取総額↓（逓減型）。掛け捨て型で保険料割安。年金形式受取の方が一括受取より受取総額が多くなる。家族の生活費保障に適した保険。'},
+{id:31,category:'リスク管理',q:'生命保険契約における告知義務違反に関する記述として、正しいものはどれか。',choices:['告知義務違反があっても保険会社は契約を解除できない','解除権の消滅時効はなく、いつでも告知義務違反を理由に解除できる','解除権は違反の事実を知った日から1か月経過、または契約から5年経過で消滅する','契約から2年が経過すれば告知義務違反による解除はできない'],answer:2,explanation:'告知義務違反（故意・重大な過失）があった場合、保険会社は契約を解除できます。ただし解除権は①保険会社が告知義務違反の事実を知った日から1か月経過、または②契約締結から5年経過のいずれかで消滅します。解除後は保険金・給付金の支払いを受けられません。',point:'告知義務違反の解除権消滅：①違反の事実を知った日から1か月経過、または②契約から5年経過。解除されると保険金不支払い（因果関係のない事故でも不支払いの場合あり）。不告知の教唆（代理店等）があった場合は解除できないケースも。'},
+{id:32,category:'リスク管理',q:'生命保険のクーリング・オフに関する記述として、正しいものはどれか。',choices:['医師の診察を受けた後の申込みにもクーリング・オフが適用される','申込日から14日以内に電話または書面で申し出ることで撤回できる','申込日から8日以内であれば電話でも有効に契約の申込みを撤回できる','申込日または書面受取日のいずれか遅い日から8日以内に書面等で申し出て撤回できる'],answer:3,explanation:'生命保険のクーリング・オフは、申込日または書面受取日のいずれか遅い日を含めて8日以内に書面（郵便等、消印有効）または電磁的方法で申し出ることで契約の申込みを撤回できます。電話のみでは無効です。医師の診察が必要な契約（団体信用生命保険等）はクーリング・オフの対象外です。',point:'クーリング・オフ：8日以内・書面（消印有効）または電磁的方法。電話のみ不可。医師の診察を受けた場合・保険期間1年以下・法人契約は対象外。申込みの撤回であり既払い保険料は全額返還される。'},
+{id:33,category:'リスク管理',q:'個人賠償責任保険（特約）の補償範囲として、正しいものはどれか。',choices:['日常生活での偶然の事故による賠償責任を補償・自動車事故・業務上の事故は対象外','日常生活の事故に加えて業務上の事故による賠償責任も補償される','自動車事故による対人・対物賠償責任も補償の対象となる','被保険者本人のみが補償対象で、家族は別途加入が必要'],answer:0,explanation:'個人賠償責任保険は日常生活での偶然の事故（自転車での接触、子どもが他人の物を壊したなど）による賠償責任を補償します。自動車事故・業務上の事故・故意の行為は対象外です。一つの契約で家族全員をカバーするものが多く、コストパフォーマンスの高い保険です。',point:'個人賠償責任保険：日常生活の偶然の賠償事故を補償。対象外：自動車事故・業務上・故意・被保険者自身のケガ。家族全員カバーが一般的。自転車事故の賠償にも有効。住宅総合保険や火災保険の特約として付帯することが多い。'},
+{id:34,category:'リスク管理',q:'終身保険に関する記述として、正しいものはどれか。',choices:['終身保険には解約返戻金がなく、保険料は定期保険より安い','一生涯の保障・解約返戻金あり・定期保険より保険料は高く老後活用も可能','保険料は定期保険より安く、老後の資金に活用できる解約返戻金がある','保険期間が満了すると保障が消滅し、その時点で解約返戻金を受け取れる'],answer:1,explanation:'終身保険は死亡・高度障害時に保険金が支払われる一生涯の保障で、解約返戻金があります。定期保険（一定期間のみ・掛け捨て）より保険料は高くなります。解約返戻金は老後の生活費・払済保険への変更・契約者貸付の担保等に活用できます。',point:'終身保険：一生涯保障・解約返戻金あり・保険料高。定期保険：一定期間・掛け捨て・保険料安。終身保険の解約返戻金活用：老後の生活資金・払済保険・延長保険への変更・契約者貸付。'},
+{id:35,category:'リスク管理',q:'特定疾病保障保険（三大疾病保険）について、正しいものはどれか。',choices:['三大疾病と診断されただけで保険金が支払われ、契約はそのまま継続される','三大疾病の所定の状態で生前に保険金を受け取れ、受け取っても契約は継続する','三大疾病の所定の状態で生前に保険金を受け取れ、受け取ると契約が終了する','死亡保険金は特定疾病保険金とは別に追加で全額が支払われる'],answer:2,explanation:'特定疾病保障保険はがん・急性心筋梗塞・脳卒中について所定の状態（がん：初めてがんと診断確定、急性心筋梗塞：所定の手術・60日以上の労働制限、脳卒中：所定の手術・60日以上の言語障害等）になった場合に保険金が支払われます。受け取ると契約は終了します。',point:'三大疾病保険：対象はがん・急性心筋梗塞・脳卒中。所定の状態で生前に受取可能→契約終了。死亡時も同額支払い。各疾病の「所定の状態」の定義が異なる点に注意。生前給付型保険の代表例。'},
+{id:36,category:'リスク管理',q:'リビングニーズ特約に関する記述として、正しいものはどれか。',choices:['余命1年以内と診断された場合に死亡保険金の範囲内を生前受取可能・非課税','余命6か月以内と診断された場合に受け取った保険金は相続税の課税対象となる','余命6か月以内と診断された場合に受け取れるが、特約保険料が別途必要','余命6か月以内と診断された場合に死亡保険金の範囲内を生前受取可能・非課税'],answer:3,explanation:'リビングニーズ特約は余命6か月以内と2名以上の医師に診断された場合に、死亡保険金の範囲内（最大3,000万円）を生前に受け取れる特約です。受け取った保険金は非課税（所得税・贈与税ともに非課税）です。特約保険料は通常無料で付帯されます。生前に受け取ると死亡時の受取額はその分減少します。',point:'リビングニーズ特約：余命6か月以内・上限3,000万円・非課税・特約保険料無料。生前受取後に死亡しても死亡保険金は減額。余命6か月「以内」という期間を正確に覚える。医療費・介護費の資金確保に活用。'},
+{id:37,category:'リスク管理',q:'医療保険の給付方式について、正しいものはどれか。',choices:['生保の医療保険は日額給付型が主流で実際の医療費とは無関係に支払われる','生保の医療保険は実費補填型が主流で、実際にかかった費用が支払われる','損保の医療保険は日額方式のみで、実費補填型の商品は存在しない','生保・損保ともに日額方式のみで、実費補填型の医療保険は存在しない'],answer:0,explanation:'生命保険会社の医療保険は「1日○千円×入院日数」という日額方式（定額給付型）が主流で、実際の医療費額に関係なく支払われます（利得が生じることもある）。損害保険会社の医療保険は実際にかかった費用を補填する実費補填型が多く見られます。入院1回あたりの限度日数（60日型・120日型等）にも注意が必要です。',point:'生保の医療保険：日額方式（定額給付）が主流。損保の医療保険：実費補填型が多い。日額方式は医療費が少なくても日額×日数が受け取れる。1入院あたりの限度日数（60日・120日）や通算限度日数も確認。'},
+{id:38,category:'リスク管理',q:'損害保険において保険金額が保険価額より低い「一部保険」の場合の支払い方法として、正しいものはどれか。',choices:['一部保険でも損害額の全額が支払われ、保険金額は上限にすぎない','損害額×（保険金額÷保険価額）の比例てん補で計算され、損害の全額は補償されない','保険金額を上限として損害額の全額が実損てん補の形で支払われる','一部保険の場合は損害が発生しても保険金の支払い対象にはならない'],answer:1,explanation:'一部保険（保険金額＜保険価額）では「損害額×（保険金額÷保険価額）」の比例てん補により保険金が計算されます。例えば保険価額2,000万円の建物に保険金額1,000万円（50%）で加入し、500万円の損害が生じた場合、受け取れる保険金は500万円×50%＝250万円となります。',point:'比例てん補（一部保険）：保険金＝損害額×（保険金額÷保険価額）。保険価額の全額で契約することが重要。実損てん補は損害額の全額を補償（超過保険の場合は保険価額が上限）。利得禁止原則により損害額以上は受け取れない。'},
+{id:39,category:'リスク管理',q:'損害保険における「免責金額（自己負担額）」の説明として、正しいものはどれか。',choices:['免責金額が設定されているとその金額分はすべての損害が免責となる','免責金額とは保険会社が保険金を支払う最高額の上限を指す','被保険者が自己負担する金額のことで、損害額から免責金額を差し引いた残額が保険金','免責金額は損害が発生した際に適用される保険料の割引額を指す'],answer:2,explanation:'免責金額とは損害発生時に被保険者が自己負担する金額です。保険金＝損害額－免責金額で計算されます。例えば免責金額5万円の契約で10万円の損害が生じた場合、保険金は5万円です。免責金額を高く設定することで保険料を低く抑えられます。自動車保険の車両保険などで設定されることが多いです。',point:'免責金額＝自己負担額。保険金＝損害額－免責金額。免責↑→保険料↓。ゼロ免責の場合は損害額全額が保険金（ただし少額損害の頻繁な請求を防ぐため免責設定が一般的）。'},
+{id:40,category:'リスク管理',q:'火災保険の補償範囲について、正しいものはどれか。',choices:['落雷による損害は火災保険の対象外で、別途特約の付加が必要','地震による損害も火災保険で補償され、地震保険は不要','水害（洪水・高潮）はすべての火災保険で自動的に補償される','火災・落雷・風災等を補償するが、地震・噴火・津波は対象外（地震保険が必要）'],answer:3,explanation:'火災保険は火災・落雷・爆発・風災・雹災・雪災・水濡れ・盗難等を補償しますが、地震・噴火・津波（地震等）による損害は免責となります。地震等による損害には火災保険に付帯する地震保険が必要です。なお水害（洪水・高潮等）は火災保険の対象となる場合がありますが、水災補償を外すことでできるプランも存在します。',point:'火災保険：火災・落雷・風災・水濡れ・盗難等を補償。地震・噴火・津波は対象外→地震保険が必要。水災は補償対象だが特約で外せる場合も。火災保険と地震保険のカバー範囲の違いを明確に理解する。'},
+{id:41,category:'金融資産運用',q:'単利と複利の違いについて、正しいものはどれか。',choices:['単利は元本のみに利息が付き、複利は利息にも利息が付くため期間が長いほど複利が有利','単利も複利も長期では同じ結果になり、どちらを選んでも運用額は変わらない','単利の方が長期運用では元本の増加が大きく複利より有利になる','複利運用では元本が保証されず、損失が生じるリスクがある'],answer:0,explanation:'単利は毎期元本にのみ利息が計算されます（元本×利率×期間）。複利は受け取った利息を元本に加えて再投資するため、期間が長くなるほど運用額が大きく膨らみます。例えば100万円を年利3%で10年運用した場合、単利では130万円、複利では約134.4万円になります。',point:'単利＝元本×利率×期間。複利＝利息を元本に組み入れて再運用。期間が長いほど複利効果（72の法則：72÷金利≒元本が2倍になる年数）が大きい。FP2では複利計算の問題も出題される。'},
+{id:42,category:'金融資産運用',q:'債券の価格と利回りの関係として正しいものはどれか。',choices:['市場金利が上昇すると既存債券の価格も上昇し、利回りも上昇する','市場金利が上昇すると既存債券の価格は下落し、利回りは上昇する（逆の動き）','債券は発行時の価格から変動せず、常に額面価格で売買される','利回りが高いほど債券価格も高くなり、低利回り債は価格が下落する'],answer:1,explanation:'既発債の価格と利回りは逆の関係にあります。市場金利が上昇すると既存の低利回り債は魅力が下がるため価格が下落し、相対的な利回りが上昇します。逆に市場金利が低下すると既存債券の価格は上昇します。債券投資では金利変動リスク（価格変動リスク）を理解することが重要です。',point:'債券価格と利回りは逆相関。市場金利↑→債券価格↓・利回り↑。市場金利↓→債券価格↑・利回り↓。残存期間が長いほど金利変動の影響が大きい（デュレーション）。'},
+{id:43,category:'金融資産運用',q:'株式の投資指標であるPERとPBRについて正しいものはどれか。',choices:['PER＝株価÷1株当たり純資産・PBR＝株価÷1株当たり純利益という逆の計算式','PER・PBRともに数値が高いほど割安と判断されるバリュー投資の代表的指標','PER＝株価÷EPS（低いほど割安）・PBR＝株価÷BPS（1倍割れは解散価値以下）','PERとPBRは同じ計算式を使用した同一の投資指標で、呼称のみが異なる'],answer:2,explanation:'PER（Price Earnings Ratio）は株価が1株当たり純利益の何倍かを示す指標で、同業他社比較に有用です。PBR（Price Book-value Ratio）は株価が1株当たり純資産の何倍かを示し、1倍以下は株価が帳簿上の純資産より低い（解散価値以下）状態です。ROE（自己資本利益率）＝当期純利益÷自己資本も重要指標です。',point:'PER＝株価÷EPS（1株当たり純利益）→低いほど割安。PBR＝株価÷BPS（1株当たり純資産）→1倍割れは解散価値以下。ROE＝当期純利益÷自己資本→高いほど効率的。3指標の計算式と意味をセットで覚える。'},
+{id:44,category:'金融資産運用',q:'投資信託の運用スタイルに関する記述として正しいものはどれか。',choices:['インデックス型は元本保証があり、アクティブ型には元本保証がない点で異なる','インデックス型はアクティブ型より運用コスト（信託報酬）が高い傾向がある','アクティブ型は常に市場平均を上回るリターンを実現できることが保証されている','インデックス型は指数連動で低コスト、アクティブ型は超過リターン狙いで高コスト'],answer:3,explanation:'インデックス型（パッシブ運用）はTOPIXや日経平均等の指数に連動することを目指します。機械的な運用のため信託報酬は低めです。アクティブ型はファンドマネージャーが銘柄を選択して市場平均超過リターンを狙います。コストが高く、長期では多くのアクティブ型がインデックス型に劣後するとも言われます。',point:'インデックス型（パッシブ）：指数連動・信託報酬低い。アクティブ型：市場超過リターン狙い・信託報酬高い。購入時手数料（ノーロード＝0円）・信託報酬（保有中毎日）・信託財産留保額（解約時）の3コストも整理。'},
+{id:45,category:'金融資産運用',q:'外貨預金に関する記述として正しいものはどれか。',choices:['外貨預金は預金保険の対象外。円安時に円転すると為替差益（雑所得・総合課税）が生じる','外貨預金は預金保険の対象で1金融機関あたり元本1,000万円まで保護される','外貨預金の為替差益は非課税で、円転時に申告不要で受け取れる','円高時に外貨を円転すると為替差益が生じ、雑所得として総合課税される'],answer:0,explanation:'外貨預金は預金保険制度の対象外です。円安（例：1ドル100円→150円）の時に外貨を円転すると為替差益が発生し、雑所得として総合課税されます。円高（例：1ドル150円→100円）の時は為替差損が発生します。また購入・売却時にTTS・TTBのスプレッドがコストとしてかかります。',point:'外貨預金：預金保険対象外・為替リスクあり。円安→円転で差益（雑所得・総合課税）、円高→差損。TTS（買うとき）とTTB（売るとき）のスプレッドがコスト。カントリーリスク（海外金融機関の場合）も考慮。'},
+{id:46,category:'金融資産運用',q:'ポートフォリオ理論における相関係数に関する記述として正しいものはどれか。',choices:['相関係数が高い（＋1に近い）ほどリスクの分散効果が大きくなり低リスク化できる','相関係数は－1〜＋1の値域。＋1では分散効果がなく、－1に近いほどリスク低減効果が大きい','相関係数は常に0から＋1の範囲の値をとり、マイナスの値になることはない','相関係数がマイナスになる資産はリスクが高まるためポートフォリオに組み入れられない'],answer:1,explanation:'相関係数は2つの資産の価格変動の連動性を示す指標（－1〜＋1）です。＋1は完全に同じ方向に動くため分散効果なし、－1は完全に逆方向に動くため最大の分散効果が得られます。複数の資産を組み合わせることで、個々のリスクより低いリスクでポートフォリオを構成できます（分散投資効果）。',point:'相関係数：－1〜＋1。＋1→分散効果なし。－1に近いほど分散効果大。0→無相関で一定の分散効果。異なる資産クラス（株・債券・不動産等）を組み合わせることで標準偏差（リスク）を下げられる。'},
+{id:47,category:'金融資産運用',q:'2024年から始まった新NISA（少額投資非課税制度）に関する記述として正しいものはどれか。',choices:['年間投資上限は合計120万円・生涯枠は600万円・非課税期間は5年間','年間投資上限は合計240万円・生涯枠は1,200万円・非課税期間は10年間','つみたて枠120万円＋成長枠240万円で年360万円・生涯枠1,800万円・非課税期間無期限','年間投資上限は合計360万円・生涯枠は2,400万円・非課税期間は20年間'],answer:2,explanation:'2024年からの新NISAは、つみたて投資枠（年120万円・長期積立分散投資向け投資信託）と成長投資枠（年240万円・上場株式・投資信託等）の2枠制です。生涯投資枠は1,800万円（成長投資枠は最大1,200万円）、非課税保有期間は無期限です。口座内の運用益・配当・分配金がすべて非課税となります。',point:'新NISA（2024年〜）：つみたて枠120万円＋成長枠240万円＝年360万円。生涯枠1,800万円（成長枠上限1,200万円）。非課税期間無期限。売却すると翌年に枠が復活。18歳以上が対象（旧NISAより成長投資枠が大幅拡充）。'},
+{id:48,category:'金融資産運用',q:'iDeCo（個人型確定拠出年金）に関する記述として正しいものはどれか。',choices:['掛け金はいつでも引き出し可能で、運用益は非課税・受取時も全額が非課税となる','掛け金の半額のみが所得控除対象で、運用益は課税・受取時は全額非課税となる','掛け金は全額が所得控除の対象で、運用益も非課税・受取時も全額非課税となる','掛け金全額所得控除・運用益非課税・受取時は課税あり・原則60歳まで引き出し不可'],answer:3,explanation:'iDeCoは掛け金全額が小規模企業共済等掛金控除として所得控除されます。運用中の利息・運用益は非課税です。受取時は年金として受け取ると雑所得（公的年金等控除適用）、一時金として受け取ると退職所得（退職所得控除適用）として課税されます。原則60歳（一定の要件で75歳）まで引き出せません。',point:'iDeCoの税制優遇：①掛け金全額所得控除、②運用益非課税、③受取時は退職所得控除または公的年金等控除。掛け金上限：会社員（企業年金なし）2.3万円/月・自営業者6.8万円/月等。60歳まで引き出し不可が最大のデメリット。'},
+{id:49,category:'金融資産運用',q:'景気動向指数の先行・一致・遅行系列に関する記述として正しいものはどれか。',choices:['株価は先行系列・有効求人倍率は一致系列・完全失業率は遅行系列に含まれる','株価は景気の動きとほぼ同時に動くため一致系列に分類される指標である','完全失業率は景気の動きに先行して変動するため先行系列に分類される指標','有効求人倍率は景気の動きより遅れて変動するため遅行系列に分類される指標'],answer:0,explanation:'景気動向指数は景気に対する動きのタイミングにより3系列に分類されます。先行系列（景気に先行）には株価・新規求人数・消費者態度指数等、一致系列（ほぼ同時）には有効求人倍率・鉱工業生産指数・商業販売額等、遅行系列（遅れて動く）には完全失業率・消費者物価指数等が含まれます。',point:'景気動向指数3系列：先行（株価・新規求人数）→一致（有効求人倍率・鉱工業生産）→遅行（完全失業率・消費者物価指数）。DIが50%超→景気拡張局面。CIは景気変動の大きさも示す。'},
+{id:50,category:'金融資産運用',q:'投資信託にかかる主な費用について正しいものはどれか。',choices:['投資信託の費用は信託報酬のみで、購入時・解約時には費用が発生しない','主な費用は①購入時手数料②信託報酬（保有中毎日）③信託財産留保額（解約時）の3種類','投資信託の費用は購入時手数料のみで、保有中や解約時には費用が発生しない','信託報酬は購入時に一括で支払うもので、保有期間中は費用が発生しない'],answer:1,explanation:'投資信託の主な費用は①購入時手数料（購入金額の0〜3%程度、ノーロードは0%）、②信託報酬（年率0.1〜2%程度、純資産から毎日差し引かれる）、③信託財産留保額（解約時に差し引かれ基準価額が下がる形で徴収）です。長期保有では信託報酬のコスト差が大きく影響します。',point:'投資信託3コスト：①購入時手数料（購入時・ノーロードは0）→②信託報酬（毎日・長期で影響大）→③信託財産留保額（解約時）。コスト比較は投資信託選択の重要指標。目論見書で確認。'},
+{id:51,category:'金融資産運用',q:'債券の信用格付けに関する記述として正しいものはどれか。',choices:['A以上が投資適格格付け・BBB以下が投機的格付け（ジャンク債）とされる','BBB以上が投資適格格付けだが、BB以下は取引が法律で禁止されている','BBB以上が投資適格格付け・BB以下が投機的格付け（ハイイールド債・ジャンク債）とされる','BB以上が投資適格格付け・B以下が投機的格付け（ハイイールド債）とされる'],answer:2,explanation:'信用格付けはS&PやMoodysなどの格付け機関が発行体の債務履行能力を評価したものです。BBB（Baa）以上が投資適格とされ、機関投資家の多くはこれ以上の格付けの債券のみ投資できるよう規定されています。BB以下の投機的格付け債券は利回りが高い反面、デフォルト（債務不履行）リスクも高くなります。',point:'投資適格：BBB以上。投機的（ハイイールド）：BB以下。格付け↓→利回り↑（リスクプレミアム）。ソブリン債（国債）は通常高格付け。格付けは参考情報であり保証ではない点も重要。'},
+{id:52,category:'金融資産運用',q:'リスクとリターンの関係について正しいものはどれか。',choices:['一般にリスクが大きいほど期待リターンは低くなる（逆の関係）','リスクとリターンは無関係で、低リスクでも高リターンを得られる','リスクが大きいほど実現するリターンが大きいことが保証されている','一般にリスクが大きいほど期待リターンも高い（ハイリスク・ハイリターン）'],answer:3,explanation:'投資の世界では一般的にリスク（価格変動の大きさ）とリターン（収益率）は比例します。標準偏差はリターンのばらつきを数値化したリスク指標です。リスクフリーレート（無リスク金利：国債利回り等）を超えるリターンを得るには相応のリスクを取る必要があります。シャープレシオはリスク1単位当たりの超過リターンを示します。',point:'ハイリスク・ハイリターンの原則。標準偏差＝リスクの大きさ（値が大きい→ばらつきが大）。シャープレシオ＝（リターン－無リスク金利）÷標準偏差（値が高いほど効率的な運用）。'},
+{id:53,category:'金融資産運用',q:'預金保険制度の保護内容について正しいものはどれか。',choices:['決済用預金は全額保護・一般預金等は1金融機関・1預金者あたり元本1,000万円まで保護','決済用預金も一般預金と同様に元本1,000万円まで保護される','外貨預金も預金保険の対象で1金融機関あたり元本1,000万円まで保護される','すべての預金が全額保護され、元本1,000万円の上限はない'],answer:0,explanation:'預金保険制度では、決済用預金（無利息・要求払い・決済機能の3要件を満たすもの）は全額保護されます。通常の預金（定期預金・普通預金等）は1金融機関・1預金者あたり元本1,000万円とその利息が保護されます。外貨預金・投資信託・元本補填契約のない金融商品は対象外です。',point:'預金保険：決済用預金→全額保護。一般預金→元本1,000万円＋利息まで保護。対象外：外貨預金・投資信託・外国銀行在日支店の預金（一部）。日本銀行当座預金も対象外。'},
+{id:54,category:'金融資産運用',q:'上場株式の配当金に係る税金の取扱いとして正しいものはどれか。',choices:['上場株式の配当金は非課税で、受け取り後に申告する必要はない','源泉徴収（20.315%）後、申告不要・申告分離課税・総合課税の中から選択できる','上場株式の配当金は総合課税のみで申告義務がある（申告不要は選択不可）','上場株式の配当金は源泉徴収税率10%が適用され、申告は不要'],answer:1,explanation:'上場株式の配当金は原則20.315%（所得税15.315%＋住民税5%）が源泉徴収されます。①申告不要制度（源泉徴収で課税完結）、②総合課税（配当控除適用可・他の所得と合算）、③申告分離課税（上場株式等の譲渡損失と損益通算可）の3つから選択できます。',point:'上場株式の配当：3択（申告不要・総合課税・申告分離課税）。総合課税→配当控除可（税率10%・5%）。申告分離課税→譲渡損失と損益通算可。低所得者は総合課税、高所得者は申告分離課税が有利な傾向。'},
+{id:55,category:'金融資産運用',q:'J-REIT（不動産投資信託）の特徴として正しいものはどれか。',choices:['J-REITは国債・社債等の債券のみに投資し、利息収入を投資家に分配する','J-REITは上場株式のみに投資し、配当収入を投資家に分配する','多数の投資家から集めた資金で不動産に投資し、賃料収入や売却益を投資家に分配する','J-REITは不動産関連株式のみに投資し、直接不動産を保有することはない'],answer:2,explanation:'J-REIT（Japanese Real Estate Investment Trust）は不動産を主な投資対象とする投資信託で、証券取引所に上場されています。少額から不動産に分散投資できる点が特徴です。配当可能利益の90%超を分配すれば法人税がほぼ課税されないため、高い分配金利回りが期待できます。ただし不動産価格変動・金利変動・空室リスク等があります。',point:'J-REIT：証券取引所上場・少額から不動産投資可能・高分配利回り。利益の90%超分配で法人税ほぼ非課税。リスク：不動産価格変動・金利上昇・空室。株式同様に市場で売買可能（流動性あり）。'},
+{id:56,category:'金融資産運用',q:'株式の信用取引に関する記述として正しいものはどれか。',choices:['信用取引は現金のみで取引する方式で、証券会社からの借り入れはない','信用取引は売建てのみが可能で、株式を借りて買建てはできない','信用取引では損失が生じても追証（追加証拠金）の請求は来ない','証券会社に担保を差し入れ株式等を借りて取引する手法。買建て・売建てができる'],answer:3,explanation:'信用取引は委託保証金（現金・有価証券等）を担保として証券会社に差し入れ、その約3.3倍相当の株式・資金を借りて取引します。買建ては株価上昇で、売建ては株価下落で利益を得ます。担保割れ（追証）が発生した場合は追加保証金の入金が必要です。一般信用取引と制度信用取引があります。',point:'信用取引：委託保証金を担保に約3.3倍取引可能（レバレッジ）。買建て→株価上昇で利益。売建て（空売り）→株価下落で利益。追証（追加保証金）に注意。現物取引と異なり損失が投資額を超える場合がある。'},
+{id:57,category:'金融資産運用',q:'日本銀行の金融政策と金融市場の関係として正しいものはどれか。',choices:['金融緩和（政策金利引下げ）→市場金利低下→既存債券価格上昇・株式市場には緩和的効果','金融緩和（政策金利引下げ）→市場金利低下→既存債券価格も下落する','金融引締め（政策金利引上げ）→市場金利上昇→既存債券価格も上昇する','日本銀行の政策金利は長期金利のみに影響し、短期金利には影響しない'],answer:0,explanation:'日本銀行が政策金利を引き下げる金融緩和策を実施すると、①市場金利が低下して既存の高利回り債券の価格が上昇、②企業の借入コスト低下で株式市場に上昇圧力、③日本とその他国の金利差縮小または拡大により為替が変動（低金利国通貨は売られやすく円安傾向）します。',point:'金融緩和（政策金利↓）の影響：市場金利↓→債券価格↑・株価↑・円安。金融引き締め（政策金利↑）は逆の動き。日銀の政策と各市場の連動を整理。量的緩和（国債買入れ）も試験に出る。'},
+{id:58,category:'金融資産運用',q:'オプション取引に関する記述として正しいものはどれか。',choices:['コール・オプションは「売る権利」、プット・オプションは「買う権利」（逆の定義）','コール＝買う権利、プット＝売る権利。オプション料のことをプレミアムという','オプション取引では将来の価格を固定する義務があり、権利ではない','コール・オプションの買い手は相場が下落するほど利益が大きくなる'],answer:1,explanation:'オプション取引は将来の一定期日または期間内に、特定の原資産を決められた価格（行使価格）で売買する「権利」を売買する取引です。コール・オプション（買う権利）の買い手は原資産価格が上昇すると利益を得ます。買い手の最大損失はプレミアム（オプション料）に限定されますが、売り手の損失は理論上無限大になります。',point:'コール（買う権利）：原資産価格↑で買い手有利。プット（売る権利）：原資産価格↓で買い手有利。買い手の最大損失＝プレミアム（損失限定）。売り手の損失は無限大の可能性。プレミアムは買い手が売り手に支払う。'},
+{id:59,category:'金融資産運用',q:'外国為替レート（TTS・TTB・TTM）に関する記述として正しいものはどれか。',choices:['TTMを基準に金融機関が外貨を買うときがTTS・外貨を売るときがTTBとなる（逆の定義）','外貨の購入も売却も同じレート（TTM）が適用され、手数料は別途請求される','TTMを基準に金融機関が外貨を売るときがTTS（円安側）・買うときがTTB（円高側）','TTS・TTBはインターバンク市場の取引にのみ適用されるレートである'],answer:2,explanation:'外貨預金・外貨取引の為替レートはTTM（仲値・基準レート）を中心に設定されます。TTS（Telegraphic Transfer Selling）は金融機関が顧客に外貨を「売る」レートでTTMより円安側（顧客が外貨を買うとき）。TTB（Telegraphic Transfer Buying）は金融機関が顧客から外貨を「買う」レートでTTMより円高側（顧客が外貨を売るとき）。',point:'TTS（外貨購入時）：TTMより円安側（金融機関に有利）。TTB（外貨売却時）：TTMより円高側。スプレッド（TTS－TTB）が金融機関のコスト・利益。TTSで外貨を買い、TTBで売るため往復でスプレッド分のコストがかかる。'},
+{id:60,category:'金融資産運用',q:'マネーストックと物価・景気の関係について正しいものはどれか。',choices:['マネーストックが増加すると市中の資金量が減り、一般的にデフレになりやすい','マネーストックは国債残高を示す指標で、金融機関の資金量とは無関係','マネーストックが増加しても物価への影響はなく、金利のみが変動する','マネーストックが増加すると市中の資金量が増え、一般的に物価が上昇しやすくなる'],answer:3,explanation:'マネーストックとは社会全体に流通している通貨の量（現金＋預金等）を指します。マネーストックが増加すると資金供給が増え、物価上昇（インフレ）圧力となります。日本銀行は政策金利の操作・公開市場操作（国債売買）・準備率操作等の金融政策でマネーストックを調節し、物価の安定（インフレ目標2%）を目指しています。',point:'マネーストック増加→インフレ圧力・景気刺激。マネーストック減少→デフレ圧力・景気抑制。日銀の金融政策ツール：政策金利操作・量的緩和（国債買入れ）・ETF購入等。消費者物価指数（CPI）が物価変動の主要指標。'},
+{id:61,category:'タックスプランニング',q:'所得税における事業所得と給与所得の違いとして正しいものはどれか。',choices:['事業所得は実際の必要経費を控除でき損益通算可。給与所得は収入から給与所得控除を引く','事業所得も給与所得も、どちらも他の所得と損益通算することができる','給与所得は実際にかかった経費を収入から差し引いて計算することができる','事業所得の損失は他の所得と損益通算できないが、給与所得の損失は通算できる'],answer:0,explanation:'事業所得は「総収入金額－必要経費」で計算し、損失が生じた場合は他の所得（給与所得等）と損益通算できます。給与所得は「給与収入－給与所得控除額」で計算し、給与所得控除は実際の経費の代わりに法定の概算控除です（特定支出控除の要件を満たす場合のみ実費控除可）。',point:'事業所得：収入－必要経費・損失は損益通算可。給与所得：収入－給与所得控除（法定概算）・実費経費原則不可。特定支出控除（給与所得控除の1/2超の特定支出がある場合）は例外的に実費控除可。'},
+{id:62,category:'タックスプランニング',q:'給与所得控除の上限に関する記述として正しいものはどれか（2020年分以降）。',choices:['給与収入が増えるほど比例して給与所得控除額も増え、上限の設定はない','給与収入850万円超の場合、給与所得控除は195万円で頭打ち（162.5万円以下は55万円）','給与収入850万円超の場合、給与所得控除は220万円で頭打ちとなる','給与収入1,000万円超の場合、給与所得控除は195万円で頭打ちとなる'],answer:1,explanation:'2020年分以降の給与所得控除は、給与収入に応じて計算されます。収入162.5万円以下は55万円、収入が増えるにつれて控除額も増加しますが、収入850万円超では195万円が上限となります（それ以上の収入増加に対して控除は増えない）。2020年の改正で基礎控除10万円引き上げと同時に給与所得控除が10万円引き下げられました。',point:'給与所得控除の上限：850万円超→195万円（頭打ち）。2020年改正：控除額を10万円引き下げ（代わりに基礎控除を10万円引き上げ）。所得金額調整控除（850万円超で子や介護等）との関係も整理。'},
+{id:63,category:'タックスプランニング',q:'青色申告の主な特典について正しいものはどれか。',choices:['事業所得等の申告者は全員が65万円の青色申告特別控除を受けられる','青色申告特別控除は65万円一律で、e-Taxの利用有無は関係ない','青色申告の事業所得者が対象。e-Tax利用で65万円・それ以外は55万円か10万円の控除','白色申告でも65万円の青色申告特別控除を同様に受けることができる'],answer:2,explanation:'青色申告は所轄税務署への承認申請が必要で、事業所得・不動産所得・山林所得がある人が対象です。主な特典は①青色申告特別控除（最高65万円・電子申告等の要件あり）、②純損失の繰越控除（3年間）・繰戻還付（1年）、③青色事業専従者給与の必要経費算入、④少額減価償却資産の特例（30万円未満即時償却）等です。',point:'青色申告の特典：①控除65万円（e-Tax・電子帳簿）または55万円・10万円。②純損失の3年繰越・1年繰戻。③専従者給与の経費算入。④30万円未満の減価償却資産の即時費用化。前年3月15日までに申請が必要（新規開業は2か月以内）。'},
+{id:64,category:'タックスプランニング',q:'医療費控除の計算として正しいものはどれか。',choices:['控除額＝支払医療費の全額（保険補填分も含む）から10万円を差し引いた金額','控除額＝（支払医療費－保険補填額）－20万円の定額が医療費控除となる','控除額＝支払医療費の全額（上限200万円・保険補填分は差し引かない）','控除額＝（支払医療費－保険補填額）－10万円（総所得×5%が10万円未満の場合はその金額）'],answer:3,explanation:'医療費控除は「（支払った医療費の合計－保険金・高額療養費等で補填された金額）－10万円（総所得金額等の5%が10万円未満の場合はその金額）」で計算され、上限は200万円です。対象となる医療費は、医師・歯科医師の診療費・治療費・入院費・通院交通費（公共交通機関）等です。確定申告が必要です。',point:'医療費控除＝（支払医療費－補填金額）－10万円（または総所得×5%の低い方）。上限200万円。年末調整不可・確定申告が必要。補填される金額は差し引く（二重控除防止）。家族全員分をまとめて控除可能（生計を一にする親族）。'},
+{id:65,category:'タックスプランニング',q:'住宅借入金等特別控除（住宅ローン控除）に関する記述として正しいものはどれか。',choices:['年末のローン残高の0.7%が所得税から控除。控除しきれない場合は翌年の住民税からも一部控除','年末のローン残高の1.0%が所得税から控除・控除しきれない場合は翌年の住民税からも控除','年末のローン残高の0.7%が所得税から控除されるが、住民税からの控除はない','年末のローン残高の0.5%が所得税および住民税の合計から控除される'],answer:0,explanation:'住宅ローン控除（住宅借入金等特別控除）は年末ローン残高×0.7%が所得税から控除されます（2022年以降）。所得税から控除しきれない額は翌年度の住民税（上限9.75万円）からも控除されます。2022〜2025年入居の一般住宅の場合、控除期間13年・借入限度額3,000万円（認定住宅等は5,000万円）です。合計所得金額2,000万円以下が要件です。',point:'住宅ローン控除：控除率0.7%（2022年〜、旧1%）・控除期間13年（新築等）。所得要件：合計所得2,000万円以下。初年度は確定申告必須・2年目以降は年末調整可。省エネ基準を満たさない新築住宅は2024年以降控除対象外。'},
+{id:66,category:'タックスプランニング',q:'配偶者控除の適用要件として正しいものはどれか（2018年分以降）。',choices:['配偶者の合計所得48万円以下であれば、納税者の所得にかかわらず控除を受けられる','配偶者の合計所得48万円以下（給与のみなら103万円以下）かつ納税者の合計所得1,000万円以下で適用','配偶者の合計所得103万円以下（給与のみなら150万円以下）で控除を受けられる','配偶者の合計所得48万円以下かつ納税者の合計所得500万円以下で控除を受けられる'],answer:1,explanation:'配偶者控除は配偶者の合計所得金額が48万円以下（給与収入のみなら103万円以下）で、納税者の合計所得金額が1,000万円以下の場合に適用されます。控除額は納税者の合計所得金額に応じて、900万円以下：38万円（老人配偶者48万円）、900万円超950万円以下：26万円、950万円超1,000万円以下：13万円です。',point:'配偶者控除：配偶者の所得48万円以下（給与収入103万円以下）・納税者の所得1,000万円以下が要件。控除額は納税者所得に応じて3段階（38万円・26万円・13万円）。配偶者特別控除は配偶者所得48万円超133万円以下の場合に最高38万円（所得に応じて逓減）。'},
+{id:67,category:'タックスプランニング',q:'所得税の損益通算に関する記述として正しいものはどれか。',choices:['損益通算はすべての所得の損失について所得の種類にかかわらず適用できる','損益通算は給与所得・一時所得・雑所得の損失が生じた場合にのみ適用できる','不動産・事業・山林・譲渡所得の損失のみが損益通算可（不動産は土地取得借入利子分除く）','損益通算できるのは不動産・事業・山林・雑所得の損失で、譲渡所得は対象外'],answer:2,explanation:'損益通算は特定の所得（不動産・事業・山林・譲渡）の損失を他の所得と相殺できる制度です。ただし不動産所得の損失のうち土地取得借入金利子相当額・生活用動産の譲渡損失・別荘等の損失は損益通算の対象外です。上場株式の譲渡損失は申告分離課税を選択した配当所得・利子所得と損益通算でき、翌年以降3年間繰り越すことができます。',point:'損益通算できる損失：不動産・事業・山林・譲渡所得の4種類。損益通算できない例：生活用動産の譲渡損・土地取得借入金利子相当の不動産損失。上場株式の譲渡損→申告分離課税の配当と通算可・3年繰越可。'},
+{id:68,category:'タックスプランニング',q:'一時所得の計算として正しいものはどれか。',choices:['一時所得＝（総収入－支出した費用）－特別控除100万円の全額が課税対象','一時所得は（総収入－支出した費用）の全額が他の所得と合算して課税される','一時所得＝（総収入－支出した費用）－特別控除50万円の全額が課税対象','一時所得＝（総収入－支出）－特別控除50万円。その2分の1の金額が他の所得と合算'],answer:3,explanation:'一時所得は「総収入金額－収入を得るための支出額－特別控除額（最高50万円）」で計算します。課税対象となるのはさらにその2分の1の金額です。一時所得の例：生命保険の満期保険金・解約返戻金（一時金）・賞金・競馬の払戻金等。満期保険金は（受取保険金－払込保険料合計－50万円）×1/2が課税対象です。',point:'一時所得＝（収入－支出）－50万円、課税対象はその1/2。対象例：満期保険金・解約返戻金（一時受取）・賞金・懸賞。総合課税。保険金は「契約者＝受取人」の場合に一時所得（死亡保険金は相続税）。'},
+{id:69,category:'タックスプランニング',q:'退職所得の計算について正しいものはどれか。',choices:['退職所得＝（退職金－退職所得控除額）×1/2。控除額は20年以下：40万円×勤続年数（最低80万円）','退職所得＝退職金全額が課税対象。控除額は勤続年数にかかわらず一律200万円','退職所得＝（退職金－退職所得控除額）の全額が課税。控除額は20年以下：40万円×年数','退職所得＝（退職金－退職所得控除額）×1/2。控除額は20年以下：70万円×勤続年数'],answer:0,explanation:'退職所得は「（退職金の収入金額－退職所得控除額）×1/2」で計算します。退職所得控除額は勤続年数20年以下で1年あたり40万円（最低80万円）、20年超は800万円に超過分1年あたり70万円を加算します。退職所得は分離課税で、他の所得とは合算しません。',point:'退職所得＝（退職金－退職所得控除）×1/2。控除額：20年以下40万円×年数（最低80万円）・20年超800万円＋70万円×（年数－20）。分離課税・申告分離。役員等の短期（5年以下）退職は×1/2が適用されない場合あり。'},
+{id:70,category:'タックスプランニング',q:'所得税の超過累進税率について正しいものはどれか。',choices:['所得税は課税所得全体に一律の比例税率が適用される比例税率制度','課税所得の増加に応じて税率が段階的に高くなる超過累進税率（5%〜45%の7段階）が適用','所得税の税率は課税所得が高くなるほど低くなる逆進税率が適用される','所得税は課税所得が一定額を超えると全体に一律45%の税率が適用される'],answer:1,explanation:'所得税は5%・10%・20%・23%・33%・40%・45%の7段階の超過累進税率が適用されます。超過累進課税は課税所得を複数の段階（課税所得区分）に分けて、各段階に対応する税率を適用します。最高税率45%は課税所得4,000万円超の部分に適用されます（住民税10%と合わせると最高55%）。',point:'所得税の税率：5%〜45%の7段階。超過累進課税（所得全体ではなく段階ごとに適用）。最高45%（課税所得4,000万円超）。住民税10%（一律）と合わせた最高負担率は約55%。実効税率（平均税率）と限界税率の違いも理解する。'},
+{id:71,category:'タックスプランニング',q:'給与所得者が確定申告を必要とする場合として正しいものはどれか。',choices:['給与収入がある人は全員が毎年必ず確定申告をする義務がある','確定申告が必要なのは事業所得者のみで、給与所得者は年末調整で完結する','給与収入2,000万円超・2か所以上から給与を受け未調整分が20万円超の人などが対象','副業収入がある給与所得者は収入額にかかわらず全員が確定申告する義務がある'],answer:2,explanation:'給与所得者でも①給与収入が2,000万円超、②2か所以上の給与で年末調整されない給与が20万円超、③各種控除（医療費控除・雑損控除・寄附金控除・初年度の住宅ローン控除）を受ける場合、④副業等の所得が20万円超（給与以外の所得の合計）などは確定申告が必要です。',point:'確定申告が必要な給与所得者：①給与2,000万円超、②年末調整されない給与20万円超、③医療費控除・寄附金控除等の適用、④副業所得20万円超。年末調整で対応できないものが確定申告対象。還付目的の申告は1月1日から可能。'},
+{id:72,category:'タックスプランニング',q:'不動産の譲渡所得の長期・短期区分と税率について正しいものはどれか。',choices:['所有期間にかかわらず一律20.315%（所得税・住民税合計）が適用される','譲渡年の1月1日時点で所有期間3年以下は短期・3年超は長期として税率が異なる','譲渡年の1月1日時点で所有期間10年以下は短期・10年超は長期として税率が異なる','譲渡年の1月1日時点で所有期間5年以下は短期（39.63%）・5年超は長期（20.315%）'],answer:3,explanation:'不動産の譲渡所得は申告分離課税です。譲渡した年の1月1日現在の所有期間が5年以下の場合は短期譲渡所得（39.63%）、5年超の場合は長期譲渡所得（20.315%）が適用されます。自宅（居住用財産）の譲渡には3,000万円特別控除や軽減税率（10年超：6,000万円以下部分は14.21%）の特例があります。',point:'不動産譲渡：申告分離課税。短期（1/1時点で5年以下）→39.63%。長期（5年超）→20.315%。居住用財産の特例：3,000万円特別控除・10年超所有の軽減税率・特定居住用財産の買換え特例。所有期間の判定基準は「売った年の1月1日時点」。'},
+{id:73,category:'タックスプランニング',q:'公的年金に係る雑所得の計算について正しいものはどれか（65歳以上・公的年金等収入のみの場合）。',choices:['雑所得＝公的年金等の収入金額－公的年金等控除額。65歳以上で収入330万円未満は110万円控除','雑所得＝公的年金等の収入金額の全額（公的年金等控除は一切適用されない）','雑所得＝公的年金等の収入金額－公的年金等控除額。65歳未満でも一律110万円控除','公的年金は雑所得ではなく一時所得として計算し、特別控除50万円が適用される'],answer:0,explanation:'公的年金等（国民年金・厚生年金・企業年金等）は雑所得として課税されます。公的年金等控除額は収入金額と年齢（65歳以上・65歳未満）により異なり、65歳以上で収入330万円未満は110万円、65歳未満で収入130万円未満は60万円が最低控除額です。他の所得がある場合は控除額が一部縮小されます（2020年改正）。',point:'公的年金等の雑所得：収入－公的年金等控除額。65歳以上・収入330万円未満→控除額110万円。65歳未満・収入130万円未満→控除額60万円。2020年改正で合計所得1,000万円超は控除額が縮小。源泉徴収あり（確定申告で精算）。'},
+{id:74,category:'タックスプランニング',q:'所得税の扶養控除の控除額として正しいものはどれか。',choices:['扶養親族の年齢にかかわらず全員に一律38万円の扶養控除が適用される','一般扶養38万円・特定扶養（19〜22歳）63万円・老人扶養（70歳以上）58万円が控除額','一般扶養38万円・特定扶養（19〜22歳）48万円・老人扶養（70歳以上）48万円が控除額','一般扶養38万円・特定扶養（19〜22歳）63万円・老人扶養（70歳以上）88万円が控除額'],answer:1,explanation:'扶養控除の対象は16歳以上の扶養親族（合計所得金額48万円以下・同一生計）で、①一般扶養控除（16〜18歳・23〜69歳）38万円、②特定扶養控除（19〜22歳）63万円、③老人扶養控除（70歳以上）同居老親等58万円・その他48万円です。16歳未満の子は扶養控除の対象外（児童手当との兼ね合いで廃止）です。',point:'扶養控除：16歳以上・所得48万円以下が対象。一般38万円・特定（19〜22歳）63万円・老人（70歳以上）58万円（同居）または48万円。16歳未満は対象外（扶養控除廃止・住民税の非課税限度額には影響あり）。'},
+{id:75,category:'タックスプランニング',q:'年末調整で精算できる控除と、確定申告が必要な控除の区別として正しいものはどれか。',choices:['年末調整では医療費控除・寄附金控除（ふるさと納税等）も申請して適用できる','年末調整ではいかなる控除も適用できず、給与所得者は全員確定申告が必要','年末調整で適用可：基礎控除・配偶者控除・扶養控除・生命保険料控除・地震保険料控除等','年末調整で適用できるのは基礎控除のみで、他の控除は確定申告が必要'],answer:2,explanation:'年末調整は給与の支払者（会社等）が行う精算手続きで、適用できる控除は基礎控除・配偶者（特別）控除・扶養控除・生命保険料控除・地震保険料控除・社会保険料控除・小規模企業共済等掛金控除・住宅ローン控除（2年目以降）等です。医療費控除・雑損控除・寄附金控除（ふるさと納税除く）・住宅ローン控除（初年度）は確定申告が必要です。',point:'年末調整OK：基礎・配偶者・扶養・生命保険料・地震保険料・社会保険料控除、住宅ローン控除（2年目以降）。確定申告必要：医療費・雑損・寄附金控除、住宅ローン控除（初年度）。ふるさと納税はワンストップ特例で確定申告不要（5自治体以内）。'},
+{id:76,category:'タックスプランニング',q:'消費税の課税事業者の判定について正しいものはどれか（インボイス制度導入後）。',choices:['基準期間の課税売上高が500万円超の場合に消費税の課税事業者となる','基準期間の課税売上高が2,000万円超の場合に消費税の課税事業者となる','基準期間の課税売上高が1,000万円超でも免税事業者を継続して選択できる','個人は前々年の課税売上高が1,000万円超で課税事業者。インボイス登録でも課税事業者'],answer:3,explanation:'消費税の課税事業者は①基準期間（個人事業者は前々年、法人は前々事業年度）の課税売上高が1,000万円超、②特定期間（直前の課税期間の上半期）の課税売上高または給与等支払額が1,000万円超、③インボイス（適格請求書発行事業者）登録した事業者（2023年10月以降）のいずれかに該当する場合です。',point:'消費税課税事業者の判定：基準期間の課税売上1,000万円超（前々年・前々事業年度）。インボイス登録→売上高にかかわらず課税事業者。免税事業者はインボイス発行不可→取引先が仕入税額控除できない。2023年10月のインボイス制度導入が重要。'},
+{id:77,category:'タックスプランニング',q:'住民税の仕組みについて正しいものはどれか。',choices:['住民税は所得割（一律10%：道府県4%・市区町村6%）と均等割（標準年5,000円）で構成','住民税の所得割は国税と同様の超過累進税率（5%〜45%）が適用される','住民税の所得割は一律5%で、均等割は全国一律年10,000円の定額負担','住民税は所得割のみで構成され、均等割（定額負担）は廃止されている'],answer:0,explanation:'住民税は①所得割（前年の課税所得×10%）と②均等割（所得にかかわらず定額・標準は都道府県1,500円＋市区町村3,500円＝5,000円）で構成されます。前年の所得に基づいて翌年の6月から翌々年の5月まで課税されます。所得税が累進課税なのに対し、住民税の所得割は一律10%の比例税率です。',point:'住民税：所得割（一律10%・前年所得課税）＋均等割（定額5,000円標準）。前年所得を翌年6月から課税（1年遅れ）。所得税は累進課税、住民税は比例課税（一律10%）。退職翌年に住民税の請求が来る点に注意。'},
+{id:78,category:'タックスプランニング',q:'所得税の基礎控除について正しいものはどれか（2020年分以降）。',choices:['合計所得金額にかかわらず一律48万円の基礎控除が必ず適用される','合計所得2,400万円以下は48万円・住民税43万円。2,400万円超から段階的に減額','合計所得2,000万円以下は48万円。2,000万円超から段階的に減額される','合計所得2,400万円以下は38万円・住民税33万円。2,400万円超から段階的に減額'],answer:1,explanation:'2020年の税制改正で基礎控除は38万円から48万円に引き上げられました（住民税は33万円から43万円）。ただし高所得者への適用を制限するため、合計所得金額2,400万円超から段階的に控除額が減少し（2,400万円超〜2,450万円以下：32万円、2,450万円超〜2,500万円以下：16万円）、2,500万円超は0円となります。',point:'基礎控除（2020年以降）：48万円（住民税43万円）。所得2,400万円超から逓減→2,500万円超は0円。改正前は38万円（一律）。給与所得控除・公的年金等控除の引き下げと同時改正（10万円引き上げ）。'},
+{id:79,category:'タックスプランニング',q:'セルフメディケーション税制に関する記述として正しいものはどれか。',choices:['市販薬を年間10,000円以上購入した場合に、購入額の全額が所得控除の対象となる','市販薬を年間12,000円超購入した場合に、購入額の全額が所得控除の対象となる','健康増進の取組みを行う人がスイッチOTC医薬品を年間12,000円超購入した場合に超過分を控除','医師の処方薬を年間12,000円超購入した場合に、超過分が所得控除の対象となる'],answer:2,explanation:'セルフメディケーション税制は医療費控除の特例で、健診や予防接種等一定の健康管理の取組みを行っている人がスイッチOTC医薬品（処方薬から転換された市販薬）を年間12,000円超購入した場合、超過分（上限88,000円）を所得控除できます。通常の医療費控除との選択適用で、両方同時適用はできません。',point:'セルフメディケーション税制：①健康増進の取組み必須、②スイッチOTC医薬品の購入が対象、③12,000円超の部分が控除（上限88,000円）、④通常医療費控除との選択適用。医療費控除（上限200万円）と比較してどちらが有利か検討が必要。'},
+{id:80,category:'タックスプランニング',q:'雑所得（業務に係るもの・副業収入等）の取扱いについて正しいものはどれか（2022年分以降）。',choices:['副業収入の雑所得は収入金額にかかわらず全額が非課税で申告不要','副業収入の雑所得は収入金額にかかわらず20万円の特別控除が適用される','副業収入が年間20万円以下の場合は雑所得として確定申告しなくてよい','業務に係る雑所得の収入が300万円以下の場合は現金主義による記帳が認められる'],answer:3,explanation:'2022年の改正通達により、副業の収入が300万円以下で帳簿等の保存がない場合は原則として雑所得に区分されることになりました（事業所得との区分が明確化）。雑所得の損失は他の所得との損益通算ができません。なお給与以外の所得の合計が20万円超の場合は確定申告が必要です。',point:'業務に係る雑所得：副業・フリーランス等。損失の損益通算不可（事業所得と異なる）。2022年改正：収入300万円以下かつ帳簿保存なし→原則雑所得（事業所得との区分基準の明確化）。20万円超は確定申告必要。公的年金も雑所得（公的年金等控除で計算）。'},
+{id:81,category:'不動産',q:'不動産売買における契約不適合責任（旧：瑕疵担保責任）について正しいものはどれか。',choices:['売主は物件が契約に適合しない場合、買主は追完請求・代金減額請求・解除・損害賠償が可能','売主に過失がなければ契約不適合責任は免除され、買主は一切の請求ができない','契約不適合責任の請求期限は発見から1年以内で、売買から10年の消滅時効がある','宅建業者が売主の場合、契約不適合責任は2年以上必要だが個人間売買は免除できる'],answer:0,explanation:'2020年の民法改正で瑕疵担保責任が「契約不適合責任」に改められました。引き渡された目的物が種類・品質・数量について契約の内容に適合しない場合、買主は①追完請求（修補・代替物引渡し等）、②代金減額請求、③損害賠償請求、④契約解除の権利を持ちます。買主がその不適合を知った時から1年以内に売主に通知することが必要です。',point:'契約不適合責任（2020年民法改正）：買主の権利は①追完請求②代金減額請求③損害賠償④契約解除の4つ。知った時から1年以内の通知が必要（旧：1年以内の請求）。売主は帰責事由がない場合でも追完・減額請求には応じる必要あり（損害賠償・解除は売主の帰責事由が必要）。'},
+{id:82,category:'不動産',q:'不動産登記の対抗力について正しいものはどれか。',choices:['不動産の所有権は登記しなくても第三者に当然に対抗できる（登記は任意）','所有権取得しても登記しなければ第三者に対抗できない（登記が対抗要件）','不動産の登記は義務で、登記なしで行った売買契約は無効となる','登記をすれば権利が完全に確定するため、二重譲渡での優先権は争えない'],answer:1,explanation:'不動産物権変動（売買・相続・贈与等）は登記をしなければ第三者に対抗できません（民法177条）。ただし日本の不動産登記には「公信力」がなく、登記を信頼して取引した者でも真の権利者には対抗できない場合があります（公信力がある制度：動産の即時取得等）。登記は義務ではありませんが、対抗要件として実務上必須です。',point:'不動産登記：対抗要件あり（登記なし→第三者に対抗不可）。公示力あり（登記内容を公示）・公信力なし（登記を信頼しても保護されない場合あり）。登記の種類：表示登記（物理的状況）・権利登記（所有権・抵当権等）。'},
+{id:83,category:'不動産',q:'都市計画法における用途地域に関する記述として正しいものはどれか。',choices:['用途地域は国土交通省が定める基準で全国統一的に10種類に分類されている','用途地域は11種類（住居系6・商業系3・工業系2）に分類される','用途地域は住居系8・商業系2・工業系3の計13種類。第一種低層住居専用が最も制限が厳格','用途地域は15種類（住居系10・商業系3・工業系2）に分類される'],answer:2,explanation:'用途地域は都市計画法に基づく13種類の地域区分で、建築できる建物の用途・規模等を規制します。住居系（8種類：第一種・第二種低層住居専用、第一種・第二種中高層住居専用、第一種・第二種住居、準住居、田園住居）、商業系（2種類：近隣商業、商業）、工業系（3種類：準工業、工業、工業専用）に分かれます。',point:'用途地域13種類：住居系8・商業系2・工業系3。第一種低層住居専用→最も制限厳しい（低層住宅のみ・高さ10mまたは12m以下）。工業専用地域→住宅建築不可。商業地域→ほぼすべての用途可（風俗施設も可）。'},
+{id:84,category:'不動産',q:'建築基準法の建ぺい率と容積率について正しいものはどれか。',choices:['建ぺい率＝延べ床面積÷敷地面積・容積率＝建築面積÷敷地面積（逆の定義）','建ぺい率＝建築面積÷敷地面積・容積率＝建築物の高さ÷敷地面積の割合','建ぺい率＝建物の高さ÷敷地面積・容積率＝延べ床面積÷敷地面積の割合','建ぺい率＝建築面積÷敷地面積・容積率＝延べ床面積÷敷地面積（道路幅員でも制限）'],answer:3,explanation:'建ぺい率＝建築面積÷敷地面積×100（%）で、敷地のうち建物が占める割合を示します。容積率＝延べ床面積÷敷地面積×100（%）で、建物の総床面積の敷地に対する割合です。用途地域ごとに上限が指定され、両方の制限を同時に満たす必要があります。角地等では建ぺい率の緩和（+10%）が認められる場合があります。',point:'建ぺい率＝建築面積÷敷地面積（建物の広がり）。容積率＝延べ床面積÷敷地面積（建物の大きさ）。建ぺい率緩和：角地や防火地域の耐火建築物で+10%。容積率の制限：前面道路幅員×法定乗数（住居系4/10・その他6/10）との小さい方が適用。'},
+{id:85,category:'不動産',q:'借地借家法における普通借地権の存続期間と更新について正しいものはどれか。',choices:['普通借地権の存続期間は最低30年。期間満了後も借地人が更新を請求すれば更新される','普通借地権の存続期間は最低20年。期間満了後も借地人が更新を請求すれば更新される','普通借地権の存続期間は最低30年。期間満了時は更新されず建物を取り壊して返還する','普通借地権の存続期間は最低50年。期間満了後も借地人が更新を請求すれば更新される'],answer:0,explanation:'借地借家法による普通借地権の存続期間は最低30年（当事者が30年より長い期間を定めた場合はその期間）です。期間満了時に借地人が更新請求をし、土地上に建物が存在していれば原則として更新されます（法定更新）。地主が更新を拒絶するには正当事由（自己使用の必要性・立退料の提供等）が必要です。',point:'普通借地権：最低30年・更新あり（1回目20年・2回目以降10年）。正当事由なき更新拒絶不可。定期借地権（一般50年・事業用10年以上・住居等50年）：更新なし・期間満了で終了。定期借地権の種類3つと期間を整理。'},
+{id:86,category:'不動産',q:'借地借家法における定期建物賃貸借（定期借家）の特徴として正しいものはどれか。',choices:['口頭での合意でも有効に成立し、期間満了後も合意があれば自動的に更新できる','書面で締結し期間満了で更新なく終了。貸主は期間満了1年前〜6か月前に終了通知が必要','書面で締結し期間満了で更新なく終了。貸主は期間満了1か月前に通知するだけでよい','書面で締結し期間満了時に借主が希望すれば自動的に更新される'],answer:1,explanation:'定期建物賃貸借（定期借家）は書面（公正証書等）による契約が必要で、期間満了により確定的に終了します（更新なし）。賃貸人は期間満了の1年前から6か月前までの間に借主に終了する旨を通知する必要があります。通知を怠ると終了を借主に対抗できません。普通借家と異なり正当事由なく貸主が更新を拒絶できるため、貸主に有利な契約です。',point:'定期借家：書面必須・更新なし・期間満了で終了。貸主の終了通知：1年前〜6か月前。普通借家：更新あり（正当事由なき更新拒絶不可）・口頭契約も有効。定期借家は転勤中の自宅賃貸等に活用。'},
+{id:87,category:'不動産',q:'不動産取得税に関する記述として正しいものはどれか。',choices:['不動産取得時に毎年課される市区町村税で固定資産税評価額×3%が税額','不動産取得時に一度だけ課される国税で固定資産税評価額×2%が税額','不動産取得時に一度だけ課される都道府県税。固定資産税評価額×4%（土地・住宅は3%）','不動産取得時に毎年課される国税で固定資産税評価額×4%が税額'],answer:2,explanation:'不動産取得税は不動産を取得した際に一度限り課される都道府県税です。税率は固定資産税評価額×4%が原則ですが、住宅・住宅用土地は3%に軽減されています。相続による取得・法人の合併・一定の信託等は非課税です。新築住宅（床面積50〜240㎡）には1,200万円の控除があります。',point:'不動産取得税：都道府県税・取得時1回・固定資産税評価額×4%（住宅・住宅用土地は3%）。非課税：相続・法人合併等。新築住宅控除：1,200万円（認定長期優良住宅は1,300万円）。土地は評価額×1/2に軽減後に税率適用。'},
+{id:88,category:'不動産',q:'固定資産税と都市計画税について正しいものはどれか。',choices:['毎年4月1日現在の所有者に課される都道府県税（標準税率1.4%）','毎年1月1日現在の所有者に課される市区町村税（標準税率2.0%）','毎年1月1日現在の不動産所有者に課される国税で標準税率は1.4%','毎年1月1日現在の所有者に課される市区町村税（1.4%）。小規模住宅用地は1/6に軽減'],answer:3,explanation:'固定資産税は毎年1月1日現在の所有者に課される市区町村税（標準税率1.4%）です。住宅用地の特例として、小規模住宅用地（200㎡以下の部分）は課税標準×1/6、一般住宅用地（200㎡超）は×1/3に軽減されます。都市計画税（上限税率0.3%）は市街化区域内の土地・建物に課されます。',point:'固定資産税：市区町村税・1/1現在の所有者・標準税率1.4%。住宅用地特例：200㎡以下は1/6・200㎡超は1/3。都市計画税：市街化区域限定・上限0.3%。固定資産税評価額は公示地価の約70%目安。3年ごとに評価替え。'},
+{id:89,category:'不動産',q:'居住用財産（マイホーム）の譲渡に係る3,000万円特別控除について正しいものはどれか。',choices:['居住用財産を譲渡した場合、所有期間にかかわらず譲渡所得から最高3,000万円を控除できる','居住用財産を譲渡した場合、所有期間が10年超の場合のみ最高3,000万円を控除できる','居住用財産を譲渡した場合、所有期間にかかわらず最高1,000万円を控除できる','居住用財産を譲渡した場合、所有期間が5年超の場合のみ最高3,000万円を控除できる'],answer:0,explanation:'居住用財産の3,000万円特別控除は所有期間にかかわらず適用でき（短期・長期どちらも可）、最高3,000万円を譲渡所得から控除できます。適用要件：①現に居住している（または住まなくなった日から3年を経過する年の12月31日まで）、②売主と買主が親子・夫婦・生計同一親族等の特別関係者でない、③前年・前々年に同特例の適用を受けていない等です。',point:'居住用財産3,000万円控除：所有期間問わず・最高3,000万円控除。適用不可：親族等への売却・3年以内に同特例使用済み。住宅ローン控除との同時適用不可（年度により異なるため要確認）。長期（10年超）は軽減税率との重複適用可。'},
+{id:90,category:'不動産',q:'不動産の公的価格（4つの価格）について正しいものはどれか。',choices:['公示地価（1月1日）・基準地価（4月1日）・路線価（1月1日・公示の80%）・固定資産税評価額（70%）','公示地価（1月1日）・基準地価（7月1日）・路線価（1月1日・公示の80%）・固定資産税評価額（70%）','公示地価（1月1日）・基準地価（7月1日）・路線価（1月1日・公示の70%）・固定資産税評価額（80%）','公示地価（4月1日）・基準地価（7月1日）・路線価（4月1日・公示の80%）・固定資産税評価額（70%）'],answer:1,explanation:'土地の公的価格は4種類あります。①公示地価（国土交通省・1月1日時点・一般土地取引の指標）、②基準地価（都道府県・7月1日時点・公示地価を補完）、③路線価（国税庁・1月1日時点・公示地価の80%目安・相続税・贈与税の評価に使用）、④固定資産税評価額（市区町村・1月1日時点・公示地価の70%目安・3年ごと評価替え）です。',point:'4つの公的価格：①公示地価（国交省・1/1）②基準地価（都道府県・7/1）③路線価（国税庁・1/1・公示の約80%）④固定資産税評価額（市区町村・公示の約70%）。路線価＝相続税・贈与税の土地評価。固定資産税評価額＝固定資産税・不動産取得税・登録免許税の基準。'},
+{id:91,category:'不動産',q:'不動産の媒介（仲介）契約の種類について正しいものはどれか。',choices:['一般媒介は報告義務が最も厳しく週1回の業務報告が義務付けられる','専任媒介は複数業者に依頼でき、自己発見取引は禁止される','一般媒介は複数業者可。専任は1社・2週1回報告。専属専任は自己発見取引不可','専属専任媒介では自己発見取引が認められ仲介手数料は不要'],answer:2,explanation:'媒介契約は3種類あります。①一般媒介：複数業者への同時依頼OK・自己発見取引OK・業者の報告義務なし。②専任媒介：1社のみ・自己発見取引OK・2週間に1回以上の報告義務・指定流通機構（レインズ）への登録義務（7日以内）。③専属専任媒介：1社のみ・自己発見取引NG・1週間に1回以上の報告義務・レインズ登録義務（5日以内）。',point:'媒介3種類：一般（複数OK・自己OK）・専任（1社・自己OK・報告2週間）・専属専任（1社・自己NG・報告1週間）。報告頻度：専属専任＞専任＞一般（なし）。レインズ登録期限：専任7日・専属専任5日。'},
+{id:92,category:'不動産',q:'宅地建物取引業法における重要事項説明について正しいものはどれか。',choices:['宅建業者は売主と買主の両方に対して重要事項説明を行う義務がある','重要事項説明は契約締結後に宅地建物取引士が書面を交付して行う','宅建士の資格がなくても従業員であれば重要事項説明を行える','契約前に宅建士が重要事項説明書を交付し説明する義務がある（相手は買主・借主のみ）'],answer:3,explanation:'宅建業者は売買・交換・賃貸の媒介・代理を行う場合、契約締結前に宅地建物取引士証を提示のうえ、宅地建物取引士が重要事項説明書（35条書面）を交付・説明する義務があります。説明の相手方は買主（賃貸では借主）に限られ、売主への説明義務はありません。宅建士の記名押印が必要です。',point:'重要事項説明（35条書面）：契約前に宅建士が説明・交付必須。相手方は買主・借主のみ（売主には不要）。宅建士証を提示して説明。IT重説（オンライン）も可能（2022年から全面解禁）。37条書面（契約書）は売主・買主双方に交付。'},
+{id:93,category:'不動産',q:'不動産投資の利回りの計算について正しいものはどれか。',choices:['表面利回り＝年間賃料÷購入価格。実質利回り＝（年間賃料－費用）÷購入価格。表面＞実質','表面利回りと実質利回りは同じ値になり、費用の有無は利回りに影響しない','実質利回りは空室損失を考慮せず常に満室賃料収入を前提として計算する','表面利回りは費用を差し引いて計算するため実質利回りより低くなる'],answer:0,explanation:'表面利回り（グロス）は年間賃料収入÷購入価格×100（%）で、管理費・修繕費・固定資産税等の費用を考慮しません。実質利回り（ネット）は（年間賃料収入－諸費用）÷購入価格×100（%）で、実際の費用を差し引いた収益性を示します。空室率を考慮したNOI利回り等も用いられます。表面利回り＞実質利回りが一般的です。',point:'表面利回り：年間賃料÷購入価格（費用・空室考慮なし）。実質利回り：（年間賃料－諸費用）÷購入価格（費用考慮あり）。表面利回り＞実質利回りが常に成立。投資判断には実質利回り・NOIが重要。DCF法（将来キャッシュフローの現在価値）も試験頻出。'},
+{id:94,category:'不動産',q:'建築基準法の道路に関する規定（接道義務・2項道路）について正しいものはどれか。',choices:['接道義務は幅員2m以上の道路に1m以上接すれば満たすことができる','幅員4m以上の道路に2m以上接する接道義務がある（4m未満は2項道路として扱う）','2項道路のセットバック部分は建築面積に算入して計算することができる','幅員2m以上の道路であれば接道義務を満たし建物を建築することができる'],answer:1,explanation:'建築基準法では、建物を建てる敷地は幅員4m以上の道路に2m以上接しなければなりません（接道義務）。建築基準法施行（1950年）以前から存在する幅員4m未満の道路は「2項道路（みなし道路）」として扱われ、道路中心線から2m後退（セットバック）した位置が道路境界線とみなされます。セットバック部分は建ぺい率・容積率の計算上、建築面積・延べ床面積に算入できません。',point:'接道義務：幅員4m以上の道路に2m以上接すること。2項道路（みなし道路）：4m未満でも既存道路→中心から2mセットバック必要。セットバック部分は建築不可・建ぺい率・容積率計算の敷地面積に算入不可。'},
+{id:95,category:'不動産',q:'不動産の有効活用手法のうち「等価交換方式」の説明として正しいものはどれか。',choices:['土地所有者は建物の権利を一切取得できず土地のみを保持する','土地所有者が全額建設資金を負担し建物全体の所有権を取得する','土地を提供し、建設費用に対応する割合の建物持分を土地所有者が取得する方式','等価交換方式では土地の所有権が移転しないため権利は保持される'],answer:2,explanation:'等価交換方式は土地所有者が土地（またはその一部）をデベロッパー（開発事業者）に提供し、デベロッパーが建物を建設します。完成した建物について、土地の評価額に見合う持分をデベロッパーが土地所有者に引き渡す代わりに、建設費用に見合う土地持分をデベロッパーが取得します。土地所有者は自己資金なしに建物の一部を取得できます。',point:'等価交換方式：土地→デベロッパー提供、建物持分→土地所有者が取得。土地所有者のメリット：建設資金不要。デメリット：土地の一部（建設費相当）をデベロッパーに譲渡。定期借地権方式（土地を貸して地代収入）との違いを整理。'},
+{id:96,category:'不動産',q:'土地・建物の固定資産税評価額と相続税路線価の関係として正しいものはどれか。',choices:['相続税路線価と固定資産税評価額はともに公示地価と同水準に設定されている','相続税路線価は公示地価のおおむね60%水準に設定されている','固定資産税評価額は相続税路線価より高い水準に設定されている','相続税路線価は公示地価の約80%・固定資産税評価額は約70%で、路線価の方が高い'],answer:3,explanation:'公示地価を100%とした場合、相続税路線価は約80%、固定資産税評価額は約70%が目安です。路線価は国税庁が毎年1月1日時点を評価基準日として7月頃公表し、相続税・贈与税の宅地評価に使用します。固定資産税評価額は市区町村が3年ごとに評価替えを行い、固定資産税・不動産取得税・登録免許税の計算基準となります。',point:'4価格の水準比較（公示地価を100%とした場合）：相続税路線価≒80%・固定資産税評価額≒70%。路線価＞固定資産税評価額が一般的。路線価→相続税・贈与税。固定資産税評価額→固定資産税・都市計画税・不動産取得税・登録免許税。'},
+{id:97,category:'不動産',q:'不動産の鑑定評価の3手法について正しいものはどれか。',choices:['原価法・取引事例比較法・収益還元法の3手法を使い、結果を調整して評価額を決定する','収益還元法は店舗・オフィス等の収益物件の評価にのみ使用できる','原価法は建物の評価には使えるが土地の評価には一切適用できない','不動産の鑑定評価は原則として1つの手法のみを使って行う必要がある'],answer:0,explanation:'不動産鑑定評価の3手法：①原価法（再調達原価を求め、経過年数等を考慮した減価修正を行う。建物の評価に有効）、②取引事例比較法（近隣の類似物件の取引事例と比較・補正して価格を求める。土地の評価に多用）、③収益還元法（将来生み出す純収益を還元利回りで割り引いて現在価値を求める。DCF法・直接還元法。収益用不動産に有効）があります。',point:'不動産鑑定評価3手法：①原価法（コスト）②取引事例比較法（市場）③収益還元法（収益）。収益還元法：直接還元法（純収益÷還元利回り）とDCF法がある。実際の鑑定では複数手法を用いて試算価格を求め、最終的な鑑定評価額を決定する。'},
+{id:98,category:'不動産',q:'住宅用地の固定資産税における課税標準の特例について正しいものはどれか。',choices:['すべての住宅用地について面積にかかわらず課税標準が1/6になる','小規模住宅用地（200㎡以下）は1/6・一般住宅用地（200㎡超）は1/3に軽減','200㎡超の一般住宅用地部分も小規模と同様に課税標準が1/6に軽減される','住宅用地の課税標準特例は固定資産税のみで都市計画税には適用されない'],answer:1,explanation:'住宅用地の固定資産税の課税標準の特例として、①小規模住宅用地（200㎡以下の部分）：評価額×1/6、②一般住宅用地（200㎡超の部分）：評価額×1/3に軽減されます。都市計画税も同様に、小規模住宅用地は評価額×1/3、一般住宅用地は評価額×2/3に軽減されます。',point:'住宅用地の軽減（固定資産税）：200㎡以下→1/6・200㎡超→1/3。都市計画税：200㎡以下→1/3・200㎡超→2/3。「200㎡」が境界。1棟の建物に対して用地の面積で判定。'},
+{id:99,category:'不動産',q:'不動産売買における手付金の性質と解除について正しいものはどれか。',choices:['売主が契約解除する場合も受け取った手付金の返還のみでよい','手付金を支払った後は売主・買主どちらも一切解除できない','手付金は解約手付とみなされ、買主は放棄・売主は倍返しで解除可（履行着手後は不可）','手付金解除は履行に着手した後でも買主・売主ともに行うことができる'],answer:2,explanation:'不動産売買における手付金は①証約手付（契約成立の証）②違約手付（債務不履行の場合の違約金）③解約手付（任意解除権の留保）の3種類がありますが、特約がなければ解約手付と推定されます。解約手付の場合、買主は手付放棄・売主は手付倍返しで解除できますが、相手方が契約の履行に着手した後は解除できません。',point:'手付金：特段の定めなし→解約手付。買主解除→手付放棄。売主解除→手付倍返し。解除期限：相手方が「履行に着手」する前まで。宅建業者が売主の場合：手付金は代金の20%以内に制限。'},
+{id:100,category:'不動産',q:'不動産の登録免許税について正しいものはどれか。',choices:['抵当権設定登記の税率は固定資産税評価額の1%が適用される','登録免許税は都道府県に納付する地方税の一種に分類される','所有権移転登記（相続）の税率は固定資産税評価額の2%が適用される','登録免許税は国税。所有権移転（売買）は評価額×2%・抵当権設定は評価額×0.4%'],answer:3,explanation:'登録免許税は不動産の登記（所有権移転・抵当権設定等）の際に課される国税です。主な税率は①所有権移転（売買）：固定資産税評価額×2%（住宅用家屋の軽減：0.3%等）、②所有権移転（相続）：評価額×0.4%、③所有権移転（贈与・その他）：評価額×2%、④抵当権設定：債権額×0.4%（住宅用家屋の住宅ローンは0.1%）です。',point:'登録免許税：国税。税率：所有権移転（売買）2%・（相続）0.4%・（贈与）2%。抵当権設定：債権額×0.4%（住宅用0.1%）。軽減措置（住宅用家屋）：売買0.3%・新築保存0.15%等。2026年3月末まで軽減措置の期限がある点も要確認。'},
+{id:101,category:'相続・事業承継',q:'法定相続人の順位と配偶者の相続分について正しいものはどれか。',choices:['配偶者は常に相続人。第1順位：子、第2順位：直系尊属、第3順位：兄弟姉妹の順','配偶者の法定相続分は子・直系尊属・兄弟姉妹のいずれが相続人でもすべて1/2','兄弟姉妹は子も直系尊属もいない場合のみ相続人になれる','直系尊属と子が同時に法定相続人になれる場合がある'],answer:0,explanation:'法定相続人の順位：①子（第1順位）②直系尊属（第2順位）③兄弟姉妹（第3順位）。配偶者は常に相続人です。配偶者の法定相続分は①子と共同相続：1/2、②直系尊属と共同相続：2/3、③兄弟姉妹と共同相続：3/4です。上位順位の相続人がいる場合、下位順位の者は相続人になりません。',point:'法定相続分：子と＝配偶者1/2・子1/2。直系尊属と＝配偶者2/3・直系尊属1/3。兄弟姉妹と＝配偶者3/4・兄弟姉妹1/4。配偶者のみ＝全部。子のみ（配偶者なし）＝全部。相続分は覚えるべき最重要項目。'},
+{id:102,category:'相続・事業承継',q:'相続税の基礎控除額の計算式として正しいものはどれか。',choices:['基礎控除額＝5,000万円＋1,000万円×法定相続人の数','基礎控除額＝3,000万円＋600万円×法定相続人数。相続放棄した者も人数に含める','相続放棄した者は法定相続人の数から除いて基礎控除額を計算する','養子は人数制限なく全員が法定相続人の数にカウントできる'],answer:1,explanation:'2015年1月以降の相続税の基礎控除額は「3,000万円＋600万円×法定相続人の数」です（改正前：5,000万円＋1,000万円×人数）。法定相続人の数のカウントでは相続放棄した者も含めます。養子は実子がいる場合は1人まで、実子がいない場合は2人まで法定相続人にカウントできます（特別養子縁組等は実子扱い）。',point:'相続税の基礎控除：3,000万円＋600万円×法定相続人数（2015年改正後）。相続放棄者も人数にカウント。養子カウント：実子あり→1人まで・実子なし→2人まで。基礎控除以下なら申告不要（ただし特例適用は申告必要）。'},
+{id:103,category:'相続・事業承継',q:'相続税の申告と納付について正しいものはどれか。',choices:['相続税の延納・物納はいかなる要件があっても認められていない','相続税の申告・納付期限は相続開始を知った日から6か月以内','申告・納付期限は相続を知った翌日から10か月以内。延納・物納も一定要件で認められる','物納は相続財産の中に現金が1円もない場合のみ認められる'],answer:2,explanation:'相続税の申告書の提出と納付期限は「相続の開始があったことを知った日の翌日から10か月以内」です。申告先は被相続人の住所地を管轄する税務署です。納付方法は①金銭による一括納付（原則）、②延納（分割払い・最長20年・利子税が発生）、③物納（不動産・国債等で物品を納付・時価ではなく相続税評価額で評価）があります。',point:'相続税の申告・納付：死亡を知った翌日から10か月以内。延納：最長20年（不動産多い場合）・利子税発生。物納：金銭困難な場合・相続税評価額で評価・順位あり（国債・不動産等）。申告要件：課税価格の合計が基礎控除超過の場合（一部特例は基礎控除以下でも申告必要）。'},
+{id:104,category:'相続・事業承継',q:'相続放棄と限定承認について正しいものはどれか。',choices:['限定承認は相続人のうち1人でも申述すれば全相続人に効力が生じる','相続放棄の申述期限は相続開始を知った日から6か月以内となっている','相続放棄した者の子はその地位を代わりに代襲して相続することができる','相続放棄は3か月以内に家裁へ申述。放棄すると初めから相続人でなかったとみなされる'],answer:3,explanation:'相続放棄・限定承認はともに相続の開始を知った日から3か月以内（熟慮期間）に家庭裁判所へ申述します。相続放棄をすると初めから相続人ではなかったとみなされ、代襲相続は生じません（欠格・廃除の場合は代襲相続が生じる）。限定承認（プラスの財産の範囲内で債務を引き受ける）は相続人全員で申述する必要があります。',point:'熟慮期間：相続を知った日から3か月。相続放棄：家裁へ申述・代襲相続なし・単独可能。限定承認：家裁へ申述・相続人全員で申述必要。欠格・廃除→代襲相続あり。放棄→代襲相続なし（ここが試験の頻出ポイント）。'},
+{id:105,category:'相続・事業承継',q:'遺言の種類と特徴について正しいものはどれか。',choices:['自筆証書遺言：全文自書・日付・押印が必要。公正証書遺言：公証人が作成・証人2人以上が必要','公正証書遺言は証人が不要で公証人1人の立会いのみで作成できる','自筆証書遺言は家庭裁判所による検認が不要で直ちに執行することができる','秘密証書遺言は証人が不要で遺言内容の秘密性を保ちながら作成できる'],answer:0,explanation:'遺言の3種類：①自筆証書遺言（全文・日付・氏名を自書＋押印、2019年改正で財産目録のみPC可）：家庭裁判所の検認が必要（法務局の保管制度利用時は不要）。②公正証書遺言（証人2人以上立会い・公証人作成・原本保管）：検認不要。③秘密証書遺言（遺言者が署名押印し封印、証人2人以上立会い・公証人に提出）：検認が必要。',point:'自筆証書遺言：全文・日付・氏名を自書＋押印・検認必要（法務局保管は不要）。公正証書遺言：証人2人・公証人作成・検認不要・最も確実。秘密証書遺言：証人2人・自署押印封印・検認必要。証人になれない者：未成年者・受遺者・受遺者の親族等。'},
+{id:106,category:'相続・事業承継',q:'遺留分について正しいものはどれか。',choices:['兄弟姉妹にも遺留分があり、相続財産の1/4が権利として保障される','兄弟姉妹には遺留分なし。直系尊属のみの場合は1/3、配偶者等含む場合は1/2','遺留分は相続財産の1/4で、相続人の続柄にかかわらず常に一律','遺留分を侵害された場合は財産の現物返還のみが認められ金銭請求は不可'],answer:1,explanation:'遺留分は遺言があっても侵害できない最低限の相続割合です。遺留分を持つのは配偶者・子・直系尊属で、兄弟姉妹には遺留分がありません。遺留分の総額は①直系尊属のみが相続人：相続財産×1/3、②その他（配偶者・子等）：相続財産×1/2です。2019年改正で遺留分減殺請求権が「遺留分侵害額請求権」（金銭請求）に改められました。',point:'遺留分：配偶者・子・直系尊属に認められる（兄弟姉妹にはなし）。総額：直系尊属のみ→1/3・それ以外→1/2。各人の遺留分＝遺留分の総額×法定相続分。侵害された場合→遺留分侵害額請求権（金銭請求）で対応（2019年改正で現物返還から金銭請求に変更）。'},
+{id:107,category:'相続・事業承継',q:'贈与税の暦年課税と基礎控除について正しいものはどれか。',choices:['110万円超の贈与は超過分ではなく贈与額の全額に課税される','基礎控除110万円は贈与者1人につき適用（受贈者単位ではない）','受贈者1人につき年間110万円の基礎控除。超過分に10%〜55%の累進税率で課税される','相続前の贈与加算期間は2024年改正後も従来どおり3年以内のまま'],answer:2,explanation:'贈与税の暦年課税では受贈者（もらう側）1人あたり年間110万円の基礎控除があります。税率は特例贈与財産（直系尊属から18歳以上への贈与）は10%〜55%（一般より低率）、一般贈与財産は10%〜55%です。2024年改正で相続財産への加算期間が相続前3年から7年に延長されました（段階的施行）。',point:'贈与税の基礎控除：受贈者1人あたり年110万円。超過分→特例税率（直系尊属→18歳以上）または一般税率で課税。相続前加算：2024年改正で3年→7年に延長（段階施行・2031年1月以降完全適用）。延長された4年分は100万円を控除して加算。'},
+{id:108,category:'相続・事業承継',q:'相続時精算課税制度について正しいものはどれか（2024年改正後）。',choices:['2024年改正前から年間110万円の基礎控除が設けられていた','受贈者ごとではなく贈与者ごとに累積2,500万円の非課税枠がある','相続時精算課税制度を選択した後でも暦年課税に変更して戻ることができる','60歳以上の直系尊属から推定相続人・孫へ。贈与者ごとに累積2,500万円まで非課税'],answer:3,explanation:'相続時精算課税は60歳以上の父母・祖父母（贈与者）から18歳以上の子・孫（受贈者）への贈与に適用されます（2024年以降18歳以上）。贈与者ごとに累積2,500万円まで贈与税が課税されず、超過分は一律20%課税。2024年改正で年間110万円の基礎控除が新設され、この部分は相続財産への持ち戻し不要です。一度選択すると同一贈与者からの贈与は暦年課税に戻れません。',point:'相続時精算課税：贈与者ごとに累積2,500万円非課税・超過は20%。2024年改正：年110万円の基礎控除追加（持ち戻し不要）。選択後は同一贈与者への暦年課税に戻れない。相続開始時に贈与財産を相続財産に加算して精算（基礎控除分を除く）。'},
+{id:109,category:'相続・事業承継',q:'配偶者に対する相続税額の軽減（配偶者税額軽減）について正しいものはどれか。',choices:['1億6,000万円または法定相続分相当額のいずれか多い額まで配偶者の相続税が非課税','配偶者が取得した遺産は金額にかかわらずすべて非課税となる','税額がゼロになる場合は申告を省略することが認められる特例がある','配偶者税額軽減の上限は法定相続分にかかわらず1億6,000万円が上限'],answer:0,explanation:'配偶者税額軽減は法律上の配偶者（内縁関係は不可）が対象で、相続した遺産額が「1億6,000万円」または「法定相続分相当額」のいずれか多い額まで相続税がかかりません。適用を受けるには申告期限内の相続税の申告書の提出が必要です（相続税額がゼロになる場合でも申告が必要）。二次相続（配偶者死亡時の次の相続）への影響も考慮した遺産分割が重要です。',point:'配偶者税額軽減：1億6,000万円または法定相続分相当額の多い方まで非課税。申告必須（ゼロでも）。期限後申告での適用も可（正当事由あれば）。二次相続対策との兼ね合いが実務では重要（過度な配偶者集中は二次相続で高税率に）。'},
+{id:110,category:'相続・事業承継',q:'小規模宅地等の特例の種類と限度面積・減額割合について正しいものはどれか。',choices:['特定居住用宅地等（自宅）の限度面積は200㎡まで・減額割合は80%','特定居住用330㎡80%減・特定事業用400㎡80%減・貸付事業用200㎡50%減','貸付事業用宅地等の減額割合は特定居住用宅地等と同じ80%である','居住用・事業用・貸付事業用のすべての種類で限度面積は同じである'],answer:1,explanation:'小規模宅地等の特例は相続した土地の評価額を減額できる特例で、①特定居住用宅地等（被相続人の自宅）：330㎡まで80%減額、②特定事業用宅地等（事業用地）：400㎡まで80%減額、③貸付事業用宅地等（賃貸物件の敷地等）：200㎡まで50%減額があります。特定居住用と特定事業用は完全に併用できます（合計730㎡まで）。',point:'小規模宅地の特例3種：①特定居住用330㎡・80%減。②特定事業用400㎡・80%減。③貸付事業用200㎡・50%減。①②の完全併用可（合計730㎡）。③と①②は面積調整が必要。適用要件（取得者・継続居住・継続事業等）も重要。'},
+{id:111,category:'相続・事業承継',q:'死亡保険金と死亡退職金の相続税における非課税限度額について正しいものはどれか。',choices:['相続人以外が死亡保険金を受け取った場合も非課税枠が適用される','死亡保険金と死亡退職金を合算して500万円×法定相続人数の非課税枠が1つある','死亡保険金・死亡退職金はそれぞれ独立した「500万円×法定相続人数」の非課税枠がある','非課税限度額は死亡保険金・退職金の合計で1,000万円×法定相続人数'],answer:2,explanation:'死亡保険金（みなし相続財産）と死亡退職金（死亡後3年以内に支給確定）はそれぞれ別枠で「500万円×法定相続人の数」の非課税限度額が設けられています。合算ではなくそれぞれ独立した枠です。非課税の適用を受けられるのは相続人が取得した場合のみで、相続人以外（受遺者等）が受け取った場合は全額が課税対象となります。',point:'死亡保険金・死亡退職金：各500万円×法定相続人数（別枠・合計ではなくそれぞれ独立）。相続人取得分のみ非課税枠適用。相続人以外→全額課税。法定相続人数は相続放棄者も含めてカウント。'},
+{id:112,category:'相続・事業承継',q:'代襲相続に関する記述として正しいものはどれか。',choices:['兄弟姉妹の代襲相続は甥・姪だけでなくさらにその子も再代襲できる','代襲相続は第1順位の子の場合のみ認められ、兄弟姉妹には適用されない','相続放棄した者の子はその親の地位を代襲して相続することができる','子が死亡等の場合は孫が代襲・ひ孫が再代襲できる。兄弟姉妹の代襲は甥・姪まで（再代襲なし）'],answer:3,explanation:'子の代襲相続：子が死亡・欠格・廃除の場合に孫が代襲し、孫も死亡等の場合はひ孫が再代襲します（無制限の再代襲）。兄弟姉妹の代襲相続：兄弟姉妹が死亡等の場合に甥・姪が代襲しますが、甥・姪の子への再代襲は認められません（1代限り）。相続放棄をした者の子は代襲相続できません（欠格・廃除は代襲相続の原因となるが放棄は不可）。',point:'代襲相続：子→孫→ひ孫（再代襲可・無制限）。兄弟姉妹→甥姪（1代限り・再代襲なし）。相続放棄→代襲なし。欠格・廃除→代襲あり。「放棄は代襲なし」「欠格・廃除は代襲あり」の違いが頻出。'},
+{id:113,category:'相続・事業承継',q:'贈与税の配偶者控除（おしどり贈与）について正しいものはどれか。',choices:['婚姻20年以上の配偶者への居住用不動産贈与で最高2,000万円を一生に一度控除できる','婚姻期間10年以上であれば最高2,000万円の配偶者控除を適用できる','配偶者への居住用不動産贈与に対する控除額の上限は1,000万円まで','同一配偶者からの贈与であれば何度でも繰り返し適用することができる'],answer:0,explanation:'贈与税の配偶者控除は婚姻期間20年以上の配偶者間での居住用不動産または居住用不動産取得のための金銭の贈与が対象です。暦年課税の基礎控除110万円とは別に最高2,000万円を控除でき、合計2,110万円まで非課税となります。同一配偶者からは生涯1回限りの適用です。2024年改正でこの控除を使った贈与財産は相続財産への加算が不要となりました。',point:'贈与税配偶者控除：婚姻20年以上・居住用不動産or取得資金・2,000万円控除（基礎控除110万円と別枠・合計2,110万円非課税）。同一配偶者から生涯1回。2024年改正：持ち戻し不要（相続財産加算なし）。居住用が要件（別荘・投資用は不可）。'},
+{id:114,category:'相続・事業承継',q:'相続税の2割加算について正しいものはどれか。',choices:['配偶者も2割加算の対象となり算出税額の20%が加算される','配偶者・一親等（子・父母）以外が相続した場合、算出相続税額の20%が加算される','孫が代襲相続した場合も他の相続人と同様に算出税額が2割加算される','兄弟姉妹が相続した場合は第3順位のため2割加算は適用されない'],answer:1,explanation:'相続税の2割加算は配偶者および一親等の血族（父母・子）以外の者が財産を取得した場合に適用されます。兄弟姉妹・孫（養子）・甥姪・受遺者等が対象となります。ただし代襲相続により孫が相続した場合は一親等の血族の代わりに相続するため2割加算の対象外です。孫を養子にした場合は2割加算の対象（代襲相続人の孫は対象外）。',point:'相続税2割加算：配偶者・一親等の血族（父母・子）以外が対象。対象：兄弟姉妹・甥姪・孫（養子）等。非対象：代襲相続人の孫（子の代わりのため）。孫養子（代襲以外）は対象。実務でよく問われる論点。'},
+{id:115,category:'相続・事業承継',q:'非上場株式等についての贈与税・相続税の納税猶予（事業承継税制）について正しいものはどれか。',choices:['猶予期間中に要件を満たさなくなった場合でも自動的に免除される','条件を満たすすべての非上場株式に自動的に納税猶予が適用される','一般措置は株式2/3・80%猶予。特例措置（2027年3月末まで）は全株式で100%猶予','雇用維持要件を下回った場合でも引き続き納税の猶予が継続できる'],answer:2,explanation:'事業承継税制には一般措置と特例措置があります。一般措置：議決権株式の2/3を上限として相続税額の80%が猶予。特例措置（2027年12月末までの特例承継計画提出が必要）：全発行済み株式を対象として相続税額の100%が猶予。後継者が5年間の雇用継続・事業継続等の要件を満たしながら保有し続けた後に先代経営者が死亡等した場合に猶予税額が免除されます。',point:'事業承継税制：一般措置（2/3・80%猶予）vs 特例措置（全株式・100%猶予）。特例措置：2027年12月末まで特例承継計画の提出が必要。5年間の雇用維持要件（特例は弾力化）。贈与版もあり（贈与税の猶予）。要件違反で猶予取消し→利子税含め納付。'},
+{id:116,category:'相続・事業承継',q:'教育資金の一括贈与の非課税特例について正しいものはどれか（2026年3月31日まで）。',choices:['金融機関を経由せず直接支払っても教育資金の非課税特例を適用できる','受贈者1人につき1,000万円まで非課税（学校以外への支払いも含む）','学校等以外（習い事等）への支払いも上限なく非課税で利用できる','30歳未満の子・孫への教育資金贈与は1,500万円まで非課税（学校以外は500万円まで）'],answer:3,explanation:'教育資金の一括贈与の非課税特例では、30歳未満の子・孫等（受贈者）の教育資金に充てるため、金融機関（信託・銀行・証券等）に専用口座を開設して一括贈与する場合、受贈者1人あたり1,500万円まで非課税です（学校等以外の塾・習い事等への支出は500万円が上限）。贈与者が死亡した場合、残高は相続財産に加算される場合があります（2021年改正で適用要件が厳格化）。',point:'教育資金一括贈与：1,500万円非課税（学校等以外は500万円上限）・30歳未満対象・金融機関経由必須・2026年3月末まで。贈与者死亡→残高は相続財産加算（一定の条件下）。結婚・子育て資金（1,000万円・うち結婚300万円上限）は別制度。'},
+{id:117,category:'相続・事業承継',q:'路線価方式による宅地の評価額の計算について正しいものはどれか。',choices:['路線価×奥行価格補正率×地積が基本。路線価は公示地価の約80%で国税庁が毎年公表する','路線価方式は市街地だけでなく農村部や山間部にも適用される評価方式','路線価は固定資産税評価額と同水準（公示地価の約70%）に設定されている','路線価方式による評価では奥行価格補正率などの補正率は考慮しない'],answer:0,explanation:'路線価方式は主に市街地の宅地の相続税・贈与税評価に使用されます。評価額＝路線価（千円/㎡単位）×奥行価格補正率×各種補正率（側方路線影響加算・二方路線影響加算・不整形地補正等）×地積（㎡）で計算します。路線価がない地域（農村部等）では倍率方式（固定資産税評価額×国税局長が定める倍率）を使用します。',point:'路線価方式：路線価×補正率×地積。路線価は公示地価の約80%。補正率：奥行（長い・短い→補正）・側方路線・二方路線・不整形地等。倍率方式：路線価のない地域→固定資産税評価額×倍率。どちらの方式を使うかは地域によって決まる。'},
+{id:118,category:'相続・事業承継',q:'法定相続分に応じた相続税の計算方式（法定相続分課税方式）について正しいものはどれか。',choices:['各相続人が実際に取得した金額に直接税率を適用して相続税を計算する','課税遺産総額を法定相続分で按分して税率を適用し合計した額が相続税の総額となる','相続税は相続人全員に対して一律20%の税率を適用して計算する','相続人全員が同じ税率で計算するため遺産分割の方法は税額に影響しない'],answer:1,explanation:'相続税の計算は①課税遺産総額（遺産総額－基礎控除）を法定相続分で各相続人に按分、②按分した各取得金額に税率（10%〜55%の8段階）を適用して各人の相続税額を計算、③合計して「相続税の総額」を求める、④相続税の総額を実際の取得割合で各相続人に按分する、という手順で行います。',point:'相続税の計算手順：①課税遺産総額＝遺産総額－基礎控除。②法定相続分で按分→各人の取得額を仮定。③各人に税率適用→相続税の総額。④総額を実際の取得割合で按分→各人の税額。⑤各種控除（配偶者・未成年者・障害者等）を適用。'},
+{id:119,category:'相続・事業承継',q:'相続税の未成年者控除と障害者控除について正しいものはどれか。',choices:['障害者控除は相続税ではなく所得税の計算において差し引くことができる','未成年者控除は年齢にかかわらず一律50万円が相続税から控除される','未成年者控除(18歳-年齢)×10万円、障害者控除(85歳-年齢)×10万円(特別は20万)','控除しきれない場合でも他の相続人の税額から控除することはできない'],answer:2,explanation:'相続税の税額控除のうち、未成年者控除は相続人が18歳未満の場合に「（18歳－相続時の年齢）×10万円」が控除されます。障害者控除は相続人が障害者の場合に「（85歳－相続時の年齢）×10万円（特別障害者は20万円）」が控除されます。控除額が相続税額を超える場合はその差額を扶養義務者（配偶者・親等）の相続税額から控除できます。',point:'相続税の人的控除：未成年者控除＝（18歳－年齢）×10万円。障害者控除＝（85歳－年齢）×10万円（特別障害者は20万円）。控除しきれない分→扶養義務者から控除可。相次相続控除（10年以内に2回相続が発生した場合）も重要控除。'},
+{id:120,category:'相続・事業承継',q:'生前贈与と相続税の関係（相続財産への加算）について正しいものはどれか（2024年改正後）。',choices:['相続人以外への贈与も含め相続開始前3年以内の贈与分が加算される','暦年課税の贈与は2024年改正後も相続開始前3年以内の分が加算される','相続時精算課税を選択した場合はその贈与財産が全額相続財産に加算される','相続人への暦年贈与は開始前7年以内が加算（2024年改正）。精算課税分は全額加算される'],answer:3,explanation:'2024年の改正で、暦年課税による相続人への贈与の相続財産加算期間が3年から7年に延長されました（段階施行：2024年1月1日以降の贈与分から適用）。延長された4年分（相続前3年超〜7年以内）については総額から100万円を控除した額が加算されます。相続時精算課税制度を選択した場合、2024年以降の年110万円の基礎控除分を除いた贈与財産が相続財産に加算されます。',point:'暦年課税の相続前加算：2024年改正で3年→7年（段階施行）。延長4年分は100万円控除して加算。相続時精算課税：2024年以降の年110万円基礎控除分は加算なし・超過分は全額加算。相続人以外への贈与は加算対象外。2024年改正の内容は今後の最頻出ポイント。'}
+];
+
+// ========== 状態管理 ==========
+let state={
+  wrongIds:[],
+  totalAnswered:0,
+  totalCorrect:0,
+  catStats:{} // {catName:{answered:n,correct:n}}
+};
+try{
+  const saved=JSON.parse(localStorage.getItem('fp_state')||'{}');
+  if(saved.wrongIds)state.wrongIds=saved.wrongIds;
+  if(saved.totalAnswered)state.totalAnswered=saved.totalAnswered;
+  if(saved.totalCorrect)state.totalCorrect=saved.totalCorrect;
+  if(saved.catStats)state.catStats=saved.catStats;
+}catch(e){}
+
+function saveState(){try{localStorage.setItem('fp_state',JSON.stringify(state));}catch(e){}}
+
+// クイズセッション
+let session={questions:[],currentIdx:0,correctCount:0,wrongCount:0,answered:false,mode:'normal'};
+
+// ========== スタート画面 ==========
+function initHome(){
+  // 復習バナー
+  const banner=document.getElementById('review-banner');
+  const cnt=state.wrongIds.length;
+  if(cnt>0){
+    banner.style.display='flex';
+    document.getElementById('review-banner-text').textContent=`復習リスト ${cnt}問`;
+  } else {
+    banner.style.display='none';
+  }
+  // 統計
+  document.getElementById('stat-total').textContent=state.totalAnswered;
+  document.getElementById('stat-correct').textContent=state.totalCorrect;
+  document.getElementById('stat-pct').textContent=
+    state.totalAnswered>0?Math.round(state.totalCorrect/state.totalAnswered*100)+'%':'－';
+  // 分野カード 復習数バッジ更新
+  document.querySelectorAll('.cat-card').forEach(card=>{
+    const cat=card.dataset.cat;
+    const old=card.querySelector('.cat-wrong');
+    if(old)old.remove();
+    if(cat!=='all'){
+      const wrongInCat=allQuestions.filter(q=>q.category===cat&&state.wrongIds.includes(q.id)).length;
+      if(wrongInCat>0){
+        const badge=document.createElement('div');
+        badge.className='cat-wrong';
+        badge.textContent=wrongInCat;
+        card.appendChild(badge);
+      }
+    }
+  });
+}
+
+function selectCat(el){
+  document.querySelectorAll('.cat-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function selectCount(el){
+  document.querySelectorAll('.count-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function getSelectedCat(){
+  return document.querySelector('.cat-card.selected').dataset.cat;
+}
+
+function getSelectedCount(){
+  return parseInt(document.querySelector('.count-btn.selected').dataset.n);
+}
+
+function startQuiz(){
+  const cat=getSelectedCat();
+  const n=getSelectedCount();
+  let pool=cat==='all'?[...allQuestions]:allQuestions.filter(q=>q.category===cat);
+  shuffle(pool);
+  const questions=n===0?pool:pool.slice(0,Math.min(n,pool.length));
+  session={questions,currentIdx:0,correctCount:0,wrongCount:0,answered:false,mode:'normal'};
+  showQuizScreen('通常モード',cat==='all'?'すべての分野':cat);
+}
+
+function startReviewMode(){
+  if(state.wrongIds.length===0)return;
+  let pool=allQuestions.filter(q=>state.wrongIds.includes(q.id));
+  shuffle(pool);
+  session={questions:pool,currentIdx:0,correctCount:0,wrongCount:0,answered:false,mode:'review'};
+  showQuizScreen('🔁 復習モード','間違えた問題');
+}
+
+function showQuizScreen(modeLabel,catLabel){
+  document.getElementById('start-screen').style.display='none';
+  document.getElementById('quiz-screen').style.display='block';
+  document.getElementById('quiz-mode-label').textContent=modeLabel;
+  document.getElementById('quiz-progress-mini').textContent=catLabel+' '+session.questions.length+'問';
+  updateScore();
+  renderQuestion();
+  window.scrollTo(0,0);
+}
+
+function goHome(){
+  document.getElementById('quiz-screen').style.display='none';
+  document.getElementById('start-screen').style.display='block';
+  initHome();
+  window.scrollTo(0,0);
+}
+
+// ========== クイズロジック ==========
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+}
+
+function updateScore(){
+  document.getElementById('correct-count').textContent=session.correctCount;
+  document.getElementById('wrong-count').textContent=session.wrongCount;
+  const total=session.questions.length;
+  const current=Math.min(session.currentIdx+1,total);
+  document.getElementById('progress-text').textContent=`${current} / ${total}`;
+  document.getElementById('progress-fill').style.width=`${(current/total)*100}%`;
+}
+
+function renderQuestion(){
+  if(session.currentIdx>=session.questions.length){renderResult();return;}
+  session.answered=false;
+  const q=session.questions[session.currentIdx];
+
+  // 選択肢をシャッフルし、正解インデックスを更新
+  const indices=q.choices.map((_,i)=>i);
+  shuffle(indices);
+  session.shuffledChoices=indices.map(i=>q.choices[i]);
+  session.shuffledAnswer=indices.indexOf(q.answer);
+
+  updateScore();
+  const isReview=session.mode==='review';
+  document.getElementById('main-content').innerHTML=`
+    <div class="question-card">
+      <div class="card-header">
+        <span class="q-number">問題 ${session.currentIdx+1}</span>
+        <span class="category-tag ${isReview?'review-tag':''}">${isReview?'🔁 復習':q.category}</span>
+      </div>
+      <div class="card-body">
+        <p class="question-text">${q.q}</p>
+        <div class="choices">
+          ${session.shuffledChoices.map((c,i)=>`
+            <button class="choice-btn" onclick="selectAnswer(${i})" id="choice-${i}">
+              <span class="choice-num">${i+1}</span><span>${c}</span>
+            </button>`).join('')}
+        </div>
+        <div id="explanation-area"></div>
+      </div>
+    </div>`;
+}
+
+function selectAnswer(idx){
+  if(session.answered)return;
+  session.answered=true;
+  const q=session.questions[session.currentIdx];
+  const correct=session.shuffledAnswer;
+  const isCorrect=idx===correct;
+
+  session.shuffledChoices.forEach((_,i)=>{
+    const btn=document.getElementById(`choice-${i}`);
+    btn.disabled=true;
+    if(i===correct)btn.classList.add('correct');
+    else if(i===idx&&!isCorrect)btn.classList.add('wrong');
+    else btn.classList.add('dimmed');
+  });
+
+  // スコア更新
+  if(isCorrect){
+    session.correctCount++;
+    state.wrongIds=state.wrongIds.filter(id=>id!==q.id);
+  } else {
+    session.wrongCount++;
+    if(!state.wrongIds.includes(q.id))state.wrongIds.push(q.id);
+  }
+  state.totalAnswered++;
+  if(isCorrect)state.totalCorrect++;
+  // 分野別統計
+  if(!state.catStats[q.category])state.catStats[q.category]={answered:0,correct:0};
+  state.catStats[q.category].answered++;
+  if(isCorrect)state.catStats[q.category].correct++;
+
+  saveState();
+  updateScore();
+
+  document.getElementById('explanation-area').innerHTML=`
+    <div class="result-badge ${isCorrect?'correct-badge':'wrong-badge'}">
+      ${isCorrect?'✓ 正解！':`✗ 不正解（正解：${correct+1}）`}
+    </div>
+    <div class="explanation">
+      <div class="explanation-title">📝 解説</div>
+      <div class="explanation-text">${q.explanation}</div>
+      <div class="explanation-point">💡 <strong>試験のポイント：</strong>${q.point}</div>
+    </div>
+    <button class="next-btn" onclick="nextQuestion()">
+      ${session.currentIdx+1<session.questions.length?'次の問題へ →':'結果を見る →'}
+    </button>`;
+}
+
+function nextQuestion(){session.currentIdx++;renderQuestion();}
+
+function renderResult(){
+  const total=session.questions.length;
+  const pct=Math.round((session.correctCount/total)*100);
+  let comment='';
+  if(pct>=90)comment='素晴らしい！合格ラインを大きく超えています。';
+  else if(pct>=70)comment='合格ライン（約60%）を超えています。\n苦手分野を確認しましょう。';
+  else if(pct>=50)comment='もう少しで合格ラインです。\n解説をもう一度読み直しましょう。';
+  else comment='基礎から復習しましょう。\n解説をじっくり読み返すのがおすすめです。';
+
+  // 今回の分野別スコア
+  const catMap={};
+  session.questions.forEach(q=>{
+    if(!catMap[q.category])catMap[q.category]={c:0,t:0};
+    catMap[q.category].t++;
+  });
+  // 正解数を再カウント（answeredフラグより実データから）
+  session.questions.forEach((q,i)=>{
+    // 正解判定は難しいのでcatStatsから引く
+  });
+
+  const hasWrong=state.wrongIds.length>0;
+  document.getElementById('main-content').innerHTML=`
+    <div class="result-screen">
+      <div class="result-badge-top">RESULT</div>
+      <div class="result-title">${session.mode==='review'?'復習チャレンジ終了！':'チャレンジ終了！'}</div>
+      <div class="result-score-big">${session.correctCount}<span> / ${total}</span></div>
+      <div class="result-pct">${pct}%</div>
+      <div class="result-comment">${comment.replace('\n','<br>')}</div>
+      ${hasWrong
+        ?`<div class="wrong-notice has-wrong"><strong>🔁 復習リストに ${state.wrongIds.length} 問が登録中</strong><br><span style="color:#888">ホームの復習モードで再チャレンジできます</span></div>`
+        :`<div class="wrong-notice all-clear"><strong>🎉 復習リストの問題を全問クリア！</strong></div>`
+      }
+      <div class="btn-group">
+        <button class="result-btn" onclick="retrySame()">もう一度</button>
+        <button class="result-btn" onclick="goHome()">ホームへ</button>
+        ${hasWrong?`<button class="result-btn orange" onclick="startReviewMode()">🔁 復習する</button>`:''}
+      </div>
+    </div>`;
+}
+
+function retrySame(){
+  shuffle(session.questions);
+  session.currentIdx=0;session.correctCount=0;session.wrongCount=0;session.answered=false;
+  updateScore();renderQuestion();
+}
+
+// ========== 初期化 ==========
+initHome();
+</script>
+</body>
+</html>

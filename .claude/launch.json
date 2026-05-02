@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "fp3-quiz-preview",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8877"],
+      "port": 8877,
+      "autoPort": false
+    }
+  ]
+}
