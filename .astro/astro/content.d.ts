@@ -551,6 +551,13 @@ declare module 'astro:content' {
   collection: "articles";
   data: InferEntrySchema<"articles">
 } & { render(): Render[".md"] };
+"2026-04-30-0edc5658abc4.md": {
+	id: "2026-04-30-0edc5658abc4.md";
+  slug: "2026-04-30-0edc5658abc4";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
 "2026-04-30-0ffd8808243e.md": {
 	id: "2026-04-30-0ffd8808243e.md";
   slug: "2026-04-30-0ffd8808243e";
@@ -572,9 +579,37 @@ declare module 'astro:content' {
   collection: "articles";
   data: InferEntrySchema<"articles">
 } & { render(): Render[".md"] };
+"2026-04-30-69958e18eb85.md": {
+	id: "2026-04-30-69958e18eb85.md";
+  slug: "2026-04-30-69958e18eb85";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-30-8fe55d237e96.md": {
+	id: "2026-04-30-8fe55d237e96.md";
+  slug: "2026-04-30-8fe55d237e96";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-30-ba7e9d21a639.md": {
+	id: "2026-04-30-ba7e9d21a639.md";
+  slug: "2026-04-30-ba7e9d21a639";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
 "2026-04-30-bd46e9c6c4b9.md": {
 	id: "2026-04-30-bd46e9c6c4b9.md";
   slug: "2026-04-30-bd46e9c6c4b9";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-30-ccab14a3db8b.md": {
+	id: "2026-04-30-ccab14a3db8b.md";
+  slug: "2026-04-30-ccab14a3db8b";
   body: string;
   collection: "articles";
   data: InferEntrySchema<"articles">
@@ -687,6 +722,13 @@ declare module 'astro:content' {
 "kojin-kokusai.md": {
 	id: "kojin-kokusai.md";
   slug: "kojin-kokusai";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"nenkin-3go-minaoshi-2026.md": {
+	id: "nenkin-3go-minaoshi-2026.md";
+  slug: "nenkin-3go-minaoshi-2026";
   body: string;
   collection: "articles";
   data: InferEntrySchema<"articles">
