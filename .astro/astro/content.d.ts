@@ -572,6 +572,13 @@ declare module 'astro:content' {
   collection: "articles";
   data: InferEntrySchema<"articles">
 } & { render(): Render[".md"] };
+"2026-04-30-bd46e9c6c4b9.md": {
+	id: "2026-04-30-bd46e9c6c4b9.md";
+  slug: "2026-04-30-bd46e9c6c4b9";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
 "2026-04-30-dde08e8d2868.md": {
 	id: "2026-04-30-dde08e8d2868.md";
   slug: "2026-04-30-dde08e8d2868";
@@ -582,6 +589,20 @@ declare module 'astro:content' {
 "2026-04-30-f949cd0e0e0a.md": {
 	id: "2026-04-30-f949cd0e0e0a.md";
   slug: "2026-04-30-f949cd0e0e0a";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-05-01-11b04b3a5c61.md": {
+	id: "2026-05-01-11b04b3a5c61.md";
+  slug: "2026-05-01-11b04b3a5c61";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-05-01-1b509e7d56f7.md": {
+	id: "2026-05-01-1b509e7d56f7.md";
+  slug: "2026-05-01-1b509e7d56f7";
   body: string;
   collection: "articles";
   data: InferEntrySchema<"articles">
@@ -607,9 +628,23 @@ declare module 'astro:content' {
   collection: "articles";
   data: InferEntrySchema<"articles">
 } & { render(): Render[".md"] };
+"2026-05-01-77be45acb166.md": {
+	id: "2026-05-01-77be45acb166.md";
+  slug: "2026-05-01-77be45acb166";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
 "2026-05-01-882d5496054b.md": {
 	id: "2026-05-01-882d5496054b.md";
   slug: "2026-05-01-882d5496054b";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-05-01-8849382eaa4e.md": {
+	id: "2026-05-01-8849382eaa4e.md";
+  slug: "2026-05-01-8849382eaa4e";
   body: string;
   collection: "articles";
   data: InferEntrySchema<"articles">
@@ -659,6 +694,13 @@ declare module 'astro:content' {
 "nisa-2026.md": {
 	id: "nisa-2026.md";
   slug: "nisa-2026";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"otc-insurance-reform-2027.md": {
+	id: "otc-insurance-reform-2027.md";
+  slug: "otc-insurance-reform-2027";
   body: string;
   collection: "articles";
   data: InferEntrySchema<"articles">
