@@ -719,6 +719,13 @@ declare module 'astro:content' {
   collection: "articles";
   data: InferEntrySchema<"articles">
 } & { render(): Render[".md"] };
+"fp3-tango-app.md": {
+	id: "fp3-tango-app.md";
+  slug: "fp3-tango-app";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
 "kojin-kokusai.md": {
 	id: "kojin-kokusai.md";
   slug: "kojin-kokusai";
