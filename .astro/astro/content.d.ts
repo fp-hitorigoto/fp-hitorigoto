@@ -481,6 +481,13 @@ declare module 'astro:content' {
   collection: "articles";
   data: InferEntrySchema<"articles">
 } & { render(): Render[".md"] };
+"2026-04-27-4c2943dd6d9d.md": {
+	id: "2026-04-27-4c2943dd6d9d.md";
+  slug: "2026-04-27-4c2943dd6d9d";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
 "2026-04-27-93d3eae14a12.md": {
 	id: "2026-04-27-93d3eae14a12.md";
   slug: "2026-04-27-93d3eae14a12";
@@ -551,6 +558,13 @@ declare module 'astro:content' {
   collection: "articles";
   data: InferEntrySchema<"articles">
 } & { render(): Render[".md"] };
+"2026-04-29-045921a2dfac.md": {
+	id: "2026-04-29-045921a2dfac.md";
+  slug: "2026-04-29-045921a2dfac";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
 "2026-04-30-0edc5658abc4.md": {
 	id: "2026-04-30-0edc5658abc4.md";
   slug: "2026-04-30-0edc5658abc4";
@@ -568,6 +582,13 @@ declare module 'astro:content' {
 "2026-04-30-3cdefeaba9c2.md": {
 	id: "2026-04-30-3cdefeaba9c2.md";
   slug: "2026-04-30-3cdefeaba9c2";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-30-49547e00f945.md": {
+	id: "2026-04-30-49547e00f945.md";
+  slug: "2026-04-30-49547e00f945";
   body: string;
   collection: "articles";
   data: InferEntrySchema<"articles">
@@ -614,9 +635,23 @@ declare module 'astro:content' {
   collection: "articles";
   data: InferEntrySchema<"articles">
 } & { render(): Render[".md"] };
+"2026-04-30-d7364686bf66.md": {
+	id: "2026-04-30-d7364686bf66.md";
+  slug: "2026-04-30-d7364686bf66";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
 "2026-04-30-dde08e8d2868.md": {
 	id: "2026-04-30-dde08e8d2868.md";
   slug: "2026-04-30-dde08e8d2868";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"2026-04-30-e69d498379db.md": {
+	id: "2026-04-30-e69d498379db.md";
+  slug: "2026-04-30-e69d498379db";
   body: string;
   collection: "articles";
   data: InferEntrySchema<"articles">
@@ -708,6 +743,13 @@ declare module 'astro:content' {
 "fp2-quiz-challenge.md": {
 	id: "fp2-quiz-challenge.md";
   slug: "fp2-quiz-challenge";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
+"fp2-tango-app.md": {
+	id: "fp2-tango-app.md";
+  slug: "fp2-tango-app";
   body: string;
   collection: "articles";
   data: InferEntrySchema<"articles">
