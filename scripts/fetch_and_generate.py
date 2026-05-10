@@ -451,6 +451,40 @@ def fetch_new_items(processed: set) -> list:
     return new_items[:MAX_ARTICLES_PER_RUN]
 
 
+def should_generate_article(item: dict, client: anthropic.Anthropic) -> bool:
+    """記事化する価値があるかをClaudeに判断させる"""
+
+    prompt = f"""あなたは「FPのひとりごと」というブログの編集者です。
+以下のニュース情報をブログ記事として取り上げるべきか判断してください。
+
+【情報源】{item['source']}
+【タイトル】{item['title']}
+【概要】{item['description'][:300]}
+
+以下の基準で判断してください：
+- 読者（FP資格勉強中・資産形成に関心のある一般人）にとって有益か
+- 具体的な数字・制度変更・実生活への影響が含まれるか
+- 採用・求人・イベント告知・統計データ公表のみの内容ではないか
+- 読者が「知ってよかった」と感じる情報か
+
+「記事化する」か「スキップ」のどちらかを最初に答え、その後1行で理由を書いてください。
+例：記事化する／老後資金に直結する年金改定の内容で読者の関心が高い
+例：スキップ／統計データの公表のみで読者向けの実用情報がない"""
+
+    try:
+        message = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=100,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        answer = message.content[0].text.strip()
+        print(f"    🤖 判断: {answer[:80]}")
+        return answer.startswith("記事化する")
+    except Exception as e:
+        print(f"    ❌ 判断エラー: {e}")
+        return True  # エラー時はとりあえず生成する
+
+
 def generate_article(item: dict, client: anthropic.Anthropic) -> str | None:
     """Claude APIを使って記事を生成する"""
 
@@ -594,6 +628,11 @@ def main():
     generated = 0
     for item in new_items:
         print(f"[{item['source']}] {item['title'][:50]}...")
+
+        if not should_generate_article(item, client):
+            print(f"    ⏭️ スキップ（価値なしと判断）")
+            processed.add(item["id"])
+            continue
 
         body = generate_article(item, client)
         if body:
