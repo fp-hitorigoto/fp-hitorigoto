@@ -1,7 +1,7 @@
 ---
 title: マネーフォワードの不正アクセス、どう受け止めればいい？
 pubDate: 2026-05-11
-category: お金の豆知識
+category: リスク管理・保険
 source: FPひとりごと編集部
 tags:
   - セキュリティ
