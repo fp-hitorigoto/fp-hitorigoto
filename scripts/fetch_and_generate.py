@@ -9,6 +9,7 @@ import json
 import re
 import hashlib
 import calendar
+import time
 import feedparser
 import anthropic
 import urllib.request
@@ -371,8 +372,18 @@ def fetch_new_items(processed: set) -> list:
                 url,
                 headers={"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"},
             )
-            with urllib.request.urlopen(req, timeout=15) as resp:
-                raw = resp.read()
+            raw = None
+            for attempt in range(3):
+                try:
+                    with urllib.request.urlopen(req, timeout=30) as resp:
+                        raw = resp.read()
+                    break
+                except Exception as retry_e:
+                    if attempt < 2:
+                        print(f"    ⚠️ リトライ ({attempt + 1}/3): {retry_e}")
+                        time.sleep(3)
+                    else:
+                        raise
             feed = feedparser.parse(raw)
 
             if feed.bozo and not feed.entries:
