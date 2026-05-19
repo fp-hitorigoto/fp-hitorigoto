@@ -57,10 +57,10 @@ RSS_FEEDS = [
         "source": "日本銀行",
         "category": "金融機関の動向",
     },
-    # 経済産業省（※住宅金融支援機構RSS廃止のため代替）
+    # 国土交通省（住宅・不動産・住宅ローン関連）
     {
-        "url": "https://www.meti.go.jp/ml_index_release_atom.xml",
-        "source": "経済産業省",
+        "url": "https://www.mlit.go.jp/rss/all.rss",
+        "source": "国土交通省",
         "category": "不動産・住宅",
     },
     # 日本証券業協会（※投資信託協会RSS廃止のため代替）
@@ -93,11 +93,11 @@ RSS_FEEDS = [
         "source": "信託協会",
         "category": "相続・事業承継",
     },
-    # 中小企業庁
+    # 内閣府（経済・社会保障政策）
     {
-        "url": "https://www.chusho.meti.go.jp/rss/index.xml",
-        "source": "中小企業庁",
-        "category": "相続・事業承継",
+        "url": "https://www.cao.go.jp/rss/news.xml",
+        "source": "内閣府",
+        "category": "税務・税制改正",
     },
 ]
 
