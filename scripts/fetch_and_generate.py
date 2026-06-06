@@ -359,9 +359,46 @@ def slugify(text: str) -> str:
     return text[:50].lower()
 
 
+def get_existing_titles() -> list:
+    """既存記事のタイトル一覧を取得する"""
+    titles = []
+    for md_file in ARTICLES_DIR.glob("*.md"):
+        try:
+            content = md_file.read_text(encoding="utf-8")
+            match = re.search(r'^title:\s*"?(.+?)"?\s*$', content, re.MULTILINE)
+            if match:
+                titles.append(match.group(1).strip())
+        except Exception:
+            continue
+    return titles
+
+
+def is_similar_title(new_title: str, existing_titles: list, threshold: int = 15) -> bool:
+    """既存記事と類似タイトルかどうかをチェックする（共通部分文字列の長さで判定）"""
+    new_lower = new_title.lower()
+    for existing in existing_titles:
+        existing_lower = existing.lower()
+        # 共通するキーワード（8文字以上の部分文字列）が含まれる場合は重複とみなす
+        if len(new_lower) >= threshold and len(existing_lower) >= threshold:
+            # 長い方のタイトルに短い部分が含まれる、または逆の場合
+            shorter = new_lower if len(new_lower) <= len(existing_lower) else existing_lower
+            longer = existing_lower if len(new_lower) <= len(existing_lower) else new_lower
+            # 先頭20文字が一致する場合も重複とみなす
+            if shorter[:20] == longer[:20]:
+                return True
+            # 8文字以上の共通部分文字列を検索
+            for start in range(len(shorter) - threshold + 1):
+                substr = shorter[start:start + threshold]
+                if substr in longer:
+                    return True
+    return False
+
+
 def fetch_new_items(processed: set) -> list:
     """全フィードから未処理の新着アイテムを取得"""
     new_items = []
+    existing_titles = get_existing_titles()
+    seen_titles_this_run = []  # 今回の実行内での重複チェック用
 
     for feed_config in RSS_FEEDS:
         url = feed_config["url"]
@@ -443,6 +480,13 @@ def fetch_new_items(processed: set) -> list:
                     processed.add(item_id)
                     continue
 
+                # 既存記事・今回実行分との類似タイトルチェック
+                if is_similar_title(title, existing_titles + seen_titles_this_run):
+                    print(f"    ⏭️ スキップ（類似記事が既に存在）: {title[:40]}")
+                    processed.add(item_id)
+                    continue
+
+                seen_titles_this_run.append(title)
                 new_items.append({
                     "id": item_id,
                     "title": title,
@@ -497,7 +541,7 @@ def should_generate_article(item: dict, client: anthropic.Anthropic) -> bool:
         return True  # エラー時はとりあえず生成する
 
 
-def generate_article(item: dict, client: anthropic.Anthropic) -> str | None:
+def generate_article(item: dict, client: anthropic.Anthropic) -> "str | None":
     """Claude APIを使って記事を生成する"""
 
     system_prompt = """あなたは「FPのひとりごと」というブログの筆者です。
