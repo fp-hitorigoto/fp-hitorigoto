@@ -21,7 +21,6 @@ from pytrends.request import TrendReq
 SCRIPT_DIR = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 ARTICLES_DIR = PROJECT_ROOT / "src" / "content" / "articles"
-PROCESSED_FILE = SCRIPT_DIR / "trends_processed_items.json"
 
 MAX_ARTICLES_PER_RUN = 2  # トレンド記事はSonnet使用のためコスト管理を厳しく
 
@@ -53,18 +52,6 @@ CATEGORY_MAP = {
     "ふるさと納税": "税務・税制改正",
     "生命保険": "リスク管理・保険",
 }
-
-
-def load_processed() -> set:
-    if PROCESSED_FILE.exists():
-        with open(PROCESSED_FILE, "r", encoding="utf-8") as f:
-            return set(json.load(f))
-    return set()
-
-
-def save_processed(processed: set):
-    with open(PROCESSED_FILE, "w", encoding="utf-8") as f:
-        json.dump(list(processed), f, ensure_ascii=False, indent=2)
 
 
 def get_existing_titles() -> list:
@@ -119,17 +106,31 @@ def fetch_rising_keywords() -> list:
     return results
 
 
-def should_generate_article(keyword: str, category: str, client: anthropic.Anthropic) -> tuple[bool, str]:
+def should_generate_article(keyword: str, category: str, existing_titles: list, client: anthropic.Anthropic) -> tuple[bool, str]:
     """記事化する価値があるかをHaikuに判断させる。(判断結果, 記事タイトル案) を返す"""
+
+    # 既存記事タイトルのうち、キーワードに関連しそうなものを最大10件絞り込んで渡す
+    kw_lower = keyword.lower()
+    related_titles = [t for t in existing_titles if any(w in t for w in keyword.split())][:10]
+    related_titles_text = "\n".join(f"- {t}" for t in related_titles) if related_titles else "（なし）"
 
     prompt = f"""あなたは「FPのひとりごと」というFP受験者・金融機関の若手向けブログの編集者です。
 今、日本でGoogleトレンドの急上昇キーワードとして「{keyword}」が浮上しています（カテゴリ：{category}）。
 
-以下の基準で、このキーワードをブログ記事にする価値があるか判断してください：
+【このキーワードに関連する既存記事】
+{related_titles_text}
+
+以下の基準で総合的に判断してください：
+
+①FP・お金に関係があるか
 - FPの試験範囲または実生活のお金に関連しているか
-- 読者（FP受験者・金融機関の若手）にとって有益な内容を書けそうか
 - 芸能・スポーツ・政治など、FP・お金と無関係ではないか
-- 固有名詞（人名・商品名のみ）など、一般的な記事にしにくくないか
+- 人名や特定商品名のみで、一般的な記事にしにくくないか
+
+②既存記事と異なる角度があるか
+- 既存記事と同じ切り口・内容では記事にしない
+- 制度改正・新しいファンド・別の活用法など、新しい角度がある場合は記事化する
+- 既存記事が全くない場合は記事化してよい
 
 「記事化する」か「スキップ」のどちらかを最初に書き、次の行に記事タイトル案（記事化する場合のみ）を書いてください。
 形式：
@@ -143,11 +144,11 @@ def should_generate_article(keyword: str, category: str, client: anthropic.Anthr
     try:
         message = client.messages.create(
             model="claude-haiku-4-5-20251001",
-            max_tokens=150,
+            max_tokens=200,
             messages=[{"role": "user", "content": prompt}],
         )
         answer = message.content[0].text.strip()
-        print(f"    🤖 判断: {answer[:100]}")
+        print(f"    🤖 判断: {answer[:120]}")
 
         if not answer.startswith("記事化する"):
             return False, ""
@@ -288,7 +289,6 @@ def main():
         return
 
     client = anthropic.Anthropic(api_key=api_key)
-    processed = load_processed()
     existing_titles = get_existing_titles()
 
     print("📈 Google Trendsからキーワードを取得中...")
@@ -300,6 +300,9 @@ def main():
 
     print(f"\n🔍 {len(rising_keywords)}件のキーワードを確認します\n")
 
+    # 当日スキップ済みキーワードを記録（同一実行内での重複防止のみ）
+    skipped_today = set()
+
     generated = 0
     for item in rising_keywords:
         if generated >= MAX_ARTICLES_PER_RUN:
@@ -308,27 +311,17 @@ def main():
         keyword = item["keyword"]
         category = item["category"]
 
-        # 処理済みキーワードはスキップ
-        kw_id = hashlib.md5(keyword.encode()).hexdigest()
-        if kw_id in processed:
-            print(f"  ⏭️ スキップ（処理済み）: {keyword}")
+        # 同一実行内で既に処理したキーワードはスキップ
+        if keyword in skipped_today:
             continue
 
         print(f"[急上昇 +{item['rising_score']}%] {keyword}（{item['seed']}関連）")
 
-        should_write, title = should_generate_article(keyword, category, client)
+        # Haikuに「FP関連か」「既存記事と違う角度があるか」を同時判断させる
+        should_write, title = should_generate_article(keyword, category, existing_titles, client)
         if not should_write:
-            print(f"    ⏭️ スキップ（価値なしと判断）")
-            processed.add(kw_id)
-            continue
-
-        # 類似タイトルチェック（fetch_and_generate.pyの関数を流用）
-        import sys
-        sys.path.insert(0, str(SCRIPT_DIR))
-        from fetch_and_generate import is_similar_title
-        if is_similar_title(title, existing_titles):
-            print(f"    ⏭️ スキップ（類似記事が既に存在）: {title}")
-            processed.add(kw_id)
+            print(f"    ⏭️ スキップ")
+            skipped_today.add(keyword)
             continue
 
         print(f"    📝 記事生成中: {title}")
@@ -338,11 +331,9 @@ def main():
                 existing_titles.append(title)
                 generated += 1
 
-        processed.add(kw_id)
-        save_processed(processed)
+        skipped_today.add(keyword)
         time.sleep(3)
 
-    save_processed(processed)
     print(f"\n🎉 完了: {generated}件のトレンド記事を生成しました")
 
 
