@@ -32,7 +32,7 @@ MAX_ARTICLES_PER_RUN = 2  # Sonnet使用のためコスト管理を厳しく
 TREND_SOURCES = [
     {
         "name": "Google Trends（日本）",
-        "url": "https://trends.google.co.jp/trends/trendingsearches/daily/rss?geo=JP",
+        "url": "https://trends.google.co.jp/trending/rss?geo=JP",
         "type": "trends",  # タイトル＝キーワード
     },
     {
@@ -41,8 +41,8 @@ TREND_SOURCES = [
         "type": "news",  # タイトル＝ニュース見出し
     },
     {
-        "name": "日経電子版",
-        "url": "https://www.nikkei.com/topic/rss?topicId=96585",
+        "name": "Yahoo!ニュース 経済",
+        "url": "https://news.yahoo.co.jp/rss/categories/business.xml",
         "type": "news",
     },
 ]
