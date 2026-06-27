@@ -42,6 +42,6 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Actions"
-          git add src/content/articles/ || true
+          git add src/content/articles/ docs/ || true
           git diff --staged --quiet || git commit -m "chore: トレンド記事生成 $(date '+%Y-%m-%d')"
           git push
