@@ -321,6 +321,8 @@ def save_note_draft(title: str, body: str, topic_title: str) -> bool:
     filename = f"note_{date_str}_{slug[:30]}.md"
     filepath = note_dir / filename
 
+    note_dir.mkdir(parents=True, exist_ok=True)
+
     content = f"""# {title}
 
 {body}
