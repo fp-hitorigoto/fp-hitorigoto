@@ -417,6 +417,7 @@ def main():
     print(f"\n🔍 {len(topics)}件のトピックを確認します\n")
 
     seen_titles = set()
+    generated_keywords = []  # 生成済み記事のキーワード（重複テーマ検出用）
     generated = 0
 
     for topic in topics:
@@ -427,6 +428,17 @@ def main():
         if topic["title"] in seen_titles:
             continue
         seen_titles.add(topic["title"])
+
+        # 生成済み記事と同じキーワードを含むトピックはスキップ
+        topic_lower = topic["title"].lower()
+        duplicate_theme = False
+        for kw in generated_keywords:
+            if kw in topic_lower or topic_lower in kw:
+                print(f"    ⏭️ スキップ（同テーマ既出: {kw}）")
+                duplicate_theme = True
+                break
+        if duplicate_theme:
+            continue
 
         print(f"[{topic['source_name']}] {topic['title'][:50]}")
 
@@ -440,6 +452,7 @@ def main():
         if body:
             if save_article(title, body, topic["category"], topic["title"]):
                 existing_titles.append(title)
+                generated_keywords.append(topic["title"].lower())
                 generated += 1
 
             time.sleep(2)
