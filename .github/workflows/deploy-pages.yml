@@ -5,7 +5,7 @@ on:
     branches: [main]
   workflow_dispatch:
   workflow_run:
-    workflows: ["毎朝自動記事生成"]
+    workflows: ["毎朝自動記事生成", "毎朝トレンド記事生成"]
     types: [completed]
     branches: [main]
 
