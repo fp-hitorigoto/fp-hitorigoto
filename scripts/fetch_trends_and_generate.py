@@ -13,7 +13,7 @@ import re
 import hashlib
 import time
 import urllib.request
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 import feedparser
@@ -78,17 +78,23 @@ def guess_category(text: str) -> str:
     return best if scores[best] > 0 else "NISA・iDeCo"
 
 
-def get_existing_titles() -> list:
-    titles = []
+def get_recent_titles(days: int = 14) -> list:
+    """直近days日以内に公開された記事タイトルを返す（同一ニュース重複判定用）"""
+    cutoff = datetime.now(timezone.utc).date() - timedelta(days=days)
+    recent = []
     for md_file in ARTICLES_DIR.glob("*.md"):
         try:
             content = md_file.read_text(encoding="utf-8")
-            match = re.search(r'^title:\s*"?(.+?)"?\s*$', content, re.MULTILINE)
-            if match:
-                titles.append(match.group(1).strip())
+            title_match = re.search(r'^title:\s*"?(.+?)"?\s*$', content, re.MULTILINE)
+            date_match = re.search(r'^pubDate:\s*"?(\d{4}-\d{2}-\d{2})', content, re.MULTILINE)
+            if not title_match or not date_match:
+                continue
+            pub_date = datetime.strptime(date_match.group(1), "%Y-%m-%d").date()
+            if pub_date >= cutoff:
+                recent.append(title_match.group(1).strip())
         except Exception:
             continue
-    return titles
+    return recent
 
 
 def fetch_all_topics() -> list:
@@ -138,7 +144,7 @@ def fetch_all_topics() -> list:
     return topics
 
 
-def should_generate_article(topic: dict, existing_titles: list, client: anthropic.Anthropic) -> tuple[bool, str]:
+def should_generate_article(topic: dict, recent_titles: list, client: anthropic.Anthropic) -> tuple[bool, str]:
     """記事化する価値があるかをHaikuに判断させる"""
 
     keyword = topic["title"]
@@ -146,8 +152,7 @@ def should_generate_article(topic: dict, existing_titles: list, client: anthropi
     source_name = topic["source_name"]
     description = topic["description"]
 
-    related_titles = [t for t in existing_titles if any(w in t for w in keyword.split())][:10]
-    related_titles_text = "\n".join(f"- {t}" for t in related_titles) if related_titles else "（なし）"
+    recent_titles_text = "\n".join(f"- {t}" for t in recent_titles) if recent_titles else "（なし）"
 
     prompt = f"""あなたは「FPのひとりごと」というFP受験者・金融機関の若手向けブログの編集者です。
 以下のトピックをブログ記事にする価値があるか判断してください。
@@ -157,8 +162,8 @@ def should_generate_article(topic: dict, existing_titles: list, client: anthropi
 【概要】{description}
 【推定カテゴリ】{category}
 
-【このトピックに関連する既存記事】
-{related_titles_text}
+【直近2週間に公開した既存記事の一覧】
+{recent_titles_text}
 
 以下の基準で総合的に判断してください：
 
@@ -167,10 +172,15 @@ def should_generate_article(topic: dict, existing_titles: list, client: anthropi
 - 芸能・スポーツ・政治など、FP・お金と無関係ではないか
 - 人名や特定商品名のみで、一般的な記事にしにくくないか
 
-②既存記事と異なる角度があるか
-- 既存記事と同じ切り口・内容では記事にしない
-- 制度改正・新しい動向・別の活用法など、新しい角度があれば記事化する
-- 既存記事が全くない場合は記事化してよい
+②既存記事と「同一のニュースイベント」ではないか（最重要）
+- 上の既存記事一覧の中に、このトピックと同じニュース・同じ統計・同じ発表・同じ出来事を扱った記事があれば、切り口や表現が違っても必ず「スキップ」とする
+- 例：同じ「税収が過去最高」「日銀短観の発表」「同じ制度改正」などを別の角度で書くのは重複とみなす
+- タイトルの文言が違っても、扱っている事実・数字・出来事が同じならスキップする
+- 同一ニュースでスキップする場合、理由に「既存記事『（該当タイトル）』と同一ニュースのため重複」と明記する
+
+③既存記事と異なる角度があるか
+- 上記②に該当しない場合、制度改正・新しい動向・別の活用法など新しい角度があれば記事化する
+- 関連する既存記事が全くない場合は記事化してよい
 
 「記事化する」か「スキップ」のどちらかを最初に書き、次の行に記事タイトル案（記事化する場合のみ）を書いてください。
 形式：
@@ -184,7 +194,7 @@ def should_generate_article(topic: dict, existing_titles: list, client: anthropi
     try:
         message = client.messages.create(
             model="claude-haiku-4-5-20251001",
-            max_tokens=200,
+            max_tokens=300,
             messages=[{"role": "user", "content": prompt}],
         )
         answer = message.content[0].text.strip()
@@ -405,7 +415,8 @@ def main():
         return
 
     client = anthropic.Anthropic(api_key=api_key)
-    existing_titles = get_existing_titles()
+    # 直近2週間の記事タイトルを同一ニュース重複判定に使う
+    recent_titles = get_recent_titles(14)
 
     print("📡 トピックを収集中...\n")
     topics = fetch_all_topics()
@@ -442,7 +453,7 @@ def main():
 
         print(f"[{topic['source_name']}] {topic['title'][:50]}")
 
-        should_write, title = should_generate_article(topic, existing_titles, client)
+        should_write, title = should_generate_article(topic, recent_titles, client)
         if not should_write:
             print(f"    ⏭️ スキップ")
             continue
@@ -451,7 +462,7 @@ def main():
         body = generate_article(topic, title, client)
         if body:
             if save_article(title, body, topic["category"], topic["title"]):
-                existing_titles.append(title)
+                recent_titles.append(title)
                 generated_keywords.append(topic["title"].lower())
                 generated += 1
 
