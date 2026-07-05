@@ -324,8 +324,8 @@ PROJECT_ROOT = SCRIPT_DIR.parent
 ARTICLES_DIR = PROJECT_ROOT / "src" / "content" / "articles"
 PROCESSED_FILE = SCRIPT_DIR / "processed_items.json"
 
-# 1回の実行で生成する記事の最大数（APIコスト管理）
-MAX_ARTICLES_PER_RUN = 5
+# 1回の実行で生成する記事の最大数（1日1本に制限）
+MAX_ARTICLES_PER_RUN = 1
 
 
 def load_processed() -> set:

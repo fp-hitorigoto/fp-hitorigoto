@@ -26,7 +26,7 @@ SCRIPT_DIR = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 ARTICLES_DIR = PROJECT_ROOT / "src" / "content" / "articles"
 
-MAX_ARTICLES_PER_RUN = 2  # Sonnet使用のためコスト管理を厳しく
+MAX_ARTICLES_PER_RUN = 1  # 1日1本に制限
 
 # ソース一覧
 TREND_SOURCES = [
