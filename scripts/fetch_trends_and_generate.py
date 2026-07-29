@@ -316,6 +316,13 @@ FP1級資格を持ち、金融機関でマネジメント職をしているベ�
 
 note記事の本文のみを出力してください（frontmatterは不要です）。"""
 
+    note_footer = """
+
+---
+🎵 FP試験対策は「音楽で覚える」という選択肢も。
+歌で覚えるFP3級、YouTube「HINOMARU Study Music」で無料公開中です。
+https://www.youtube.com/@hinomaru_study"""
+
     try:
         message = client.messages.create(
             model="claude-sonnet-4-6",
@@ -323,7 +330,7 @@ note記事の本文のみを出力してください（frontmatterは不要で�
             messages=[{"role": "user", "content": user_prompt}],
             system=system_prompt,
         )
-        return message.content[0].text
+        return message.content[0].text + note_footer
     except Exception as e:
         print(f"    ❌ note記事生成エラー: {e}")
         return None
