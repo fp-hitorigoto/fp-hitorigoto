@@ -279,6 +279,81 @@ FP1級資格を持ち、金融機関でマネジメント職をしているベ�
         return None
 
 
+def check_date_consistency(body: str, pubdate_str: str, client: anthropic.Anthropic) -> str:
+    """Haikuで日付・年号の整合性を軽くチェックする。問題があれば警告文を返す（なければ空文字）。
+
+    完全なファクトチェックではなく、「本日の日付」と記事内の年号・時制表現が
+    明らかに矛盾していないかだけを見る簡易チェック。
+    """
+    prompt = f"""今日の日付は{pubdate_str}です。以下はこの日付で公開予定のブログ記事です。
+
+記事本文の中で、年号や「今年」「現在」「〜から始まります」といった時制表現が、
+今日の日付（{pubdate_str}）と明らかに矛盾していないかだけを確認してください。
+たとえば、実際にはまだ先の話（未来の制度開始）を「もう始まった」かのように
+過去形・完了形で書いていないか、逆に既に終わったことを未来のことのように書いていないか、
+現在の日付から見て不自然に古い年（2〜3年以上前）が「現行」「今年度」として使われていないか、
+といった点をチェックしてください。
+
+記事本文:
+---
+{body[:3000]}
+---
+
+矛盾が見当たらなければ「問題なし」とだけ答えてください。
+矛盾がある場合は「要確認：」に続けて、具体的にどの記述がどう疑わしいかを1〜2文で簡潔に述べてください。
+確信が持てない場合や軽微な曖昧さは指摘せず、明らかにおかしい場合のみ指摘してください。"""
+
+    try:
+        message = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=200,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        answer = message.content[0].text.strip()
+        if answer.startswith("問題なし"):
+            return ""
+        return answer
+    except Exception as e:
+        print(f"    ⚠️ 日付チェックエラー（スキップ）: {e}")
+        return ""
+
+
+def fix_date_issue(body: str, pubdate_str: str, issue: str, client: anthropic.Anthropic) -> "str | None":
+    """指摘された日付・年号の矛盾を、Haikuに本文修正させる。
+
+    Haikuには検索機能がなく正しい日付を保証できないため、確信が持てる場合のみ
+    具体的な日付に直し、確信が持てない場合は「（要確認）」という表現に置き換えさせる。
+    修正版の本文全体を返す（失敗時はNoneを返し、呼び出し元は元の本文をそのまま使う）。
+    """
+    prompt = f"""今日の日付は{pubdate_str}です。以下のブログ記事本文について、
+「{issue}」という矛盾が指摘されています。
+
+この矛盾を解消するように本文を修正してください。修正方針：
+- 正しい日付・年号に確信が持てる場合は、それに書き換える
+- 確信が持てない場合は、断定的な年号・時制表現を避け、「（時期は要確認です）」
+  のような曖昧さを許容する表現に書き換える
+- 上記以外の部分（文体・構成・他の内容）は変更しない
+- 指摘された箇所以外を書き換えたり、内容を大きく削ったりしないこと
+
+修正前の本文:
+---
+{body}
+---
+
+修正後の本文全体をそのまま出力してください（説明や前置きは不要です）。"""
+
+    try:
+        message = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=2500,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        return message.content[0].text.strip()
+    except Exception as e:
+        print(f"    ⚠️ 日付自動修正エラー（元の本文を使用）: {e}")
+        return None
+
+
 def generate_note_article(topic: dict, title: str, blog_body: str, client: anthropic.Anthropic) -> "str | None":
     """Sonnetでnote向け記事を生成する"""
 
@@ -380,7 +455,7 @@ def slugify(text: str) -> str:
     return "trends-" + text[:40].lower()
 
 
-def save_article(title: str, body: str, category: str, keyword: str) -> bool:
+def save_article(title: str, body: str, category: str, keyword: str, date_warning: str = "") -> bool:
     slug = slugify(title)
     date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     filename = f"{date_str}-{slug}.md"
@@ -419,10 +494,16 @@ excerpt: "{excerpt_escaped}"
 
 """
 
+    if date_warning:
+        warning_comment = f"<!-- ⚠️ 自動チェック（Haiku）: {date_warning} -->\n\n"
+        body = warning_comment + body
+
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(frontmatter + body)
 
     print(f"    ✅ 保存: {filename}")
+    if date_warning:
+        print(f"    ⚠️ 日付要確認: {date_warning}")
     return True
 
 
@@ -479,7 +560,18 @@ def main():
         print(f"    📝 記事生成中: {title}")
         body = generate_article(topic, title, client)
         if body:
-            if save_article(title, body, topic["category"], topic["title"]):
+            date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            issue = check_date_consistency(body, date_str, client)
+            save_note = ""
+            if issue:
+                print(f"    ⚠️ 日付の疑いを検知、自動修正を試みます: {issue}")
+                fixed_body = fix_date_issue(body, date_str, issue, client)
+                if fixed_body:
+                    body = fixed_body
+                    save_note = f"日付の自動修正を実施済み（要ダブルチェック）。検知内容: {issue}"
+                else:
+                    save_note = f"日付の自動修正に失敗。要確認: {issue}"
+            if save_article(title, body, topic["category"], topic["title"], save_note):
                 recent_titles.append(title)
                 generated_keywords.append(topic["title"].lower())
                 generated += 1
