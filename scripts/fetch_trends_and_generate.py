@@ -403,6 +403,9 @@ note記事の本文のみを出力してください（frontmatterは不要で�
     note_footer = """
 
 ---
+📘 FP試験のポイント付きの詳しい解説は、ブログ「FPのひとりごと」でも公開しています。
+https://fp-hitorigoto.github.io/fp-hitorigoto/
+
 🎵 FP試験対策は「音楽で覚える」という選択肢も。
 歌で覚えるFP3級、YouTube「HINOMARU Study Music」で無料公開中です。
 https://www.youtube.com/@hinomaru_study"""
