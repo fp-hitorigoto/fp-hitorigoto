@@ -629,9 +629,10 @@ def check_date_consistency(body: str, pubdate_str: str, client: anthropic.Anthro
 {body[:3000]}
 ---
 
-矛盾が見当たらなければ「問題なし」とだけ答えてください。
-矛盾がある場合は「要確認：」に続けて、具体的にどの記述がどう疑わしいかを1〜2文で簡潔に述べてください。
-確信が持てない場合や軽微な曖昧さは指摘せず、明らかにおかしい場合のみ指摘してください。"""
+回答は次のどちらか一方の形式のみとし、それ以外の文章は一切書かないでください。
+・明らかな矛盾が見当たらなければ、「問題なし」とだけ答える
+・明らかに矛盾している箇所がある場合のみ、「矛盾あり：」に続けて、具体的にどの記述が今日の日付とどう矛盾しているかを1文（100字以内）で述べる
+「念のため」「曖昧」「確認が必要かもしれない」といった程度の軽微な懸念や、矛盾はないと判断した場合は、必ず「問題なし」と答えてください。"""
 
     try:
         message = client.messages.create(
@@ -640,7 +641,7 @@ def check_date_consistency(body: str, pubdate_str: str, client: anthropic.Anthro
             messages=[{"role": "user", "content": prompt}],
         )
         answer = message.content[0].text.strip()
-        if answer.startswith("問題なし"):
+        if not answer.startswith("矛盾あり"):
             return ""
         return answer
     except Exception as e:
