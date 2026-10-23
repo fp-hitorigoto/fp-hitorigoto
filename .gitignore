@@ -6,3 +6,7 @@ dist/
 .DS_Store
 *.pyc
 __pycache__/
+
+# ローカル作業メモ・自動生成ファイル（リポジトリには入れない）
+引き継ぎ書_*.md
+.astro/settings.json
