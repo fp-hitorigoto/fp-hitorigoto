@@ -25,8 +25,18 @@ import anthropic
 SCRIPT_DIR = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 ARTICLES_DIR = PROJECT_ROOT / "src" / "content" / "articles"
+REVIEW_HOLD_DIR = PROJECT_ROOT / "docs" / "review_hold"
 
 MAX_ARTICLES_PER_RUN = 1  # 1日1本に制限
+
+# 使用モデル
+MODEL_TRIAGE = "claude-haiku-5-5"      # 記事化するかの判定（呼び出し回数が多いので軽量モデル）
+MODEL_WRITER = "claude-sonnet-5-5"     # 記事本文の執筆
+MODEL_REVIEWER = "claude-opus-5-5"     # 事実チェック（web検索あり）
+MODEL_CHECKER = "claude-sonnet-5-5"    # 重複チェック・編集方針チェック
+
+# web検索ツール（Opus 5.5 / Sonnet 5.5 等で利用可）
+WEB_SEARCH_TOOL = {"type": "web_search_20260209", "name": "web_search", "max_uses": 8}
 
 # ソース一覧
 TREND_SOURCES = [
@@ -193,7 +203,7 @@ def should_generate_article(topic: dict, recent_titles: list, client: anthropic.
 
     try:
         message = client.messages.create(
-            model="claude-haiku-4-5-20251001",
+            model=MODEL_TRIAGE,
             max_tokens=300,
             messages=[{"role": "user", "content": prompt}],
         )
@@ -275,7 +285,7 @@ FP1級資格を持ち、金融機関でマネジメント職をしているベ�
 
     try:
         message = client.messages.create(
-            model="claude-sonnet-4-6",
+            model=MODEL_WRITER,
             max_tokens=2500,
             messages=[{"role": "user", "content": user_prompt}],
             system=system_prompt,
@@ -283,82 +293,6 @@ FP1級資格を持ち、金融機関でマネジメント職をしているベ�
         return message.content[0].text
     except Exception as e:
         print(f"    ❌ 記事生成エラー: {e}")
-        return None
-
-
-def check_date_consistency(body: str, pubdate_str: str, client: anthropic.Anthropic) -> str:
-    """Haikuで日付・年号の整合性を軽くチェックする。問題があれば警告文を返す（なければ空文字）。
-
-    完全なファクトチェックではなく、「本日の日付」と記事内の年号・時制表現が
-    明らかに矛盾していないかだけを見る簡易チェック。
-    """
-    prompt = f"""今日の日付は{pubdate_str}です。以下はこの日付で公開予定のブログ記事です。
-
-記事本文の中で、年号や「今年」「現在」「〜から始まります」といった時制表現が、
-今日の日付（{pubdate_str}）と明らかに矛盾していないかだけを確認してください。
-たとえば、実際にはまだ先の話（未来の制度開始）を「もう始まった」かのように
-過去形・完了形で書いていないか、逆に既に終わったことを未来のことのように書いていないか、
-現在の日付から見て不自然に古い年（2〜3年以上前）が「現行」「今年度」として使われていないか、
-といった点をチェックしてください。
-
-記事本文:
----
-{body[:3000]}
----
-
-回答は次のどちらか一方の形式のみとし、それ以外の文章は一切書かないでください。
-・明らかな矛盾が見当たらなければ、「問題なし」とだけ答える
-・明らかに矛盾している箇所がある場合のみ、「矛盾あり：」に続けて、具体的にどの記述が今日の日付とどう矛盾しているかを1文（100字以内）で述べる
-「念のため」「曖昧」「確認が必要かもしれない」といった程度の軽微な懸念や、矛盾はないと判断した場合は、必ず「問題なし」と答えてください。"""
-
-    try:
-        message = client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=200,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        answer = message.content[0].text.strip()
-        if not answer.startswith("矛盾あり"):
-            return ""
-        return answer
-    except Exception as e:
-        print(f"    ⚠️ 日付チェックエラー（スキップ）: {e}")
-        return ""
-
-
-def fix_date_issue(body: str, pubdate_str: str, issue: str, client: anthropic.Anthropic) -> "str | None":
-    """指摘された日付・年号の矛盾を、Haikuに本文修正させる。
-
-    Haikuには検索機能がなく正しい日付を保証できないため、確信が持てる場合のみ
-    具体的な日付に直し、確信が持てない場合は「（要確認）」という表現に置き換えさせる。
-    修正版の本文全体を返す（失敗時はNoneを返し、呼び出し元は元の本文をそのまま使う）。
-    """
-    prompt = f"""今日の日付は{pubdate_str}です。以下のブログ記事本文について、
-「{issue}」という矛盾が指摘されています。
-
-この矛盾を解消するように本文を修正してください。修正方針：
-- 正しい日付・年号に確信が持てる場合は、それに書き換える
-- 確信が持てない場合は、断定的な年号・時制表現を避け、「（時期は要確認です）」
-  のような曖昧さを許容する表現に書き換える
-- 上記以外の部分（文体・構成・他の内容）は変更しない
-- 指摘された箇所以外を書き換えたり、内容を大きく削ったりしないこと
-
-修正前の本文:
----
-{body}
----
-
-修正後の本文全体をそのまま出力してください（説明や前置きは不要です）。"""
-
-    try:
-        message = client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=2500,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        return message.content[0].text.strip()
-    except Exception as e:
-        print(f"    ⚠️ 日付自動修正エラー（元の本文を使用）: {e}")
         return None
 
 
@@ -422,7 +356,7 @@ https://www.youtube.com/@hinomaru_study"""
 
     try:
         message = client.messages.create(
-            model="claude-sonnet-4-6",
+            model=MODEL_WRITER,
             max_tokens=3000,
             messages=[{"role": "user", "content": user_prompt}],
             system=system_prompt,
@@ -475,6 +409,258 @@ def slugify(text: str) -> str:
     return "trends-" + text[:40].lower()
 
 
+
+# ============================================================
+# 公開前レビュー（事実・重複・編集方針）
+# ============================================================
+
+def _extract_text(message) -> str:
+    """レスポンスからテキストブロックだけを連結して返す"""
+    parts = []
+    for block in message.content:
+        if getattr(block, "type", None) == "text":
+            parts.append(block.text)
+    return "\n".join(parts).strip()
+
+
+def _call_review(client, model, prompt, use_search=False, max_tokens=16000, effort="high"):
+    """レビュー用の呼び出し。web検索ツール利用時は pause_turn を継いで最後まで回す。"""
+    kwargs = {
+        "model": model,
+        "max_tokens": max_tokens,
+        "output_config": {"effort": effort},
+    }
+    if use_search:
+        kwargs["tools"] = [WEB_SEARCH_TOOL]
+
+    messages = [{"role": "user", "content": prompt}]
+    collected = []
+    for _ in range(6):  # pause_turn の継続は最大6回まで
+        message = client.messages.create(messages=messages, **kwargs)
+        collected.append(_extract_text(message))
+        if message.stop_reason != "pause_turn":
+            break
+        messages.append({"role": "assistant", "content": message.content})
+    return "\n".join(t for t in collected if t).strip()
+
+
+def _parse_verdict(text: str) -> dict:
+    """レビュー結果のJSONを取り出す。失敗したら保留扱いにする（安全側に倒す）。"""
+    if not text:
+        return {"verdict": "hold", "issues": ["レビュー結果が空でした"]}
+    m = re.search(r"\{.*\}", text, re.DOTALL)
+    if not m:
+        return {"verdict": "hold", "issues": ["レビュー結果をJSONとして解釈できませんでした"]}
+    try:
+        data = json.loads(m.group(0))
+    except Exception:
+        return {"verdict": "hold", "issues": ["レビュー結果のJSONが壊れていました"]}
+    verdict = str(data.get("verdict", "hold")).lower()
+    if verdict not in ("ok", "minor", "hold"):
+        verdict = "hold"
+    issues = data.get("issues") or []
+    if isinstance(issues, str):
+        issues = [issues]
+    return {"verdict": verdict, "issues": [str(i) for i in issues]}
+
+
+def review_facts(title: str, body: str, pubdate_str: str, client) -> dict:
+    """web検索で事実関係を照合する。疑義があれば hold を返す。"""
+    prompt = f"""あなたは金融ブログの校閲者です。今日は{pubdate_str}です。
+以下の記事を、**web検索を使って実際に裏取りしながら**検証してください。推測で判断せず、必ず検索して確かめること。
+
+特に次の点を重点的に確認します。
+1. 統計・制度の数値（金額、率、枠、指数など）が一次情報と一致しているか
+2. 日付・年号・時制が実際の出来事と合っているか。記事中の「◯◯年時点」が公開日と整合しているか
+3. **金利・物価などの時点で変わる水準**。「低金利」「ほぼゼロ金利」のような前提が現在も正しいか必ず検索で確認する
+4. 制度の仕組みの説明（「AだからBになる」という因果）が正しいか。税・社会保険は立場や区分（課税事業者／免税事業者、被用者／第1号被保険者など）で結論が逆になることがあるため、区分を無視した断定になっていないか
+5. 複数条件の判定基準で「かつ／または」を取り違えていないか。記事中の計算例の算数が合っているか
+6. 報道ごとに数値が割れている事柄を、片方だけ採用して断定していないか
+
+判定基準：
+- "ok"    : 事実関係に問題なし
+- "minor" : 表現をやわらげれば足りる程度（断定しすぎ等）で、事実そのものは誤っていない
+- "hold"  : 数値・日付・仕組み・計算のいずれかに誤りまたは強い疑いがある（公開を止める）
+
+次のJSONだけを出力してください。説明文は不要です。
+{{"verdict": "ok|minor|hold", "issues": ["指摘を1件ずつ。誤りは正しい内容と出典も書く"]}}
+
+記事タイトル: {title}
+
+記事本文:
+---
+{body}
+---"""
+    try:
+        text = _call_review(client, MODEL_REVIEWER, prompt, use_search=True)
+        return _parse_verdict(text)
+    except Exception as e:
+        print(f"    ⚠️ 事実チェックエラー: {e}")
+        return {"verdict": "hold", "issues": [f"事実チェックが実行できませんでした: {e}"]}
+
+
+def get_recent_articles_meta(days: int = 90) -> list:
+    """直近days日の記事のタイトルと要約を返す（重複チェック用）"""
+    cutoff = datetime.now(timezone.utc).date() - timedelta(days=days)
+    metas = []
+    for md_file in ARTICLES_DIR.glob("*.md"):
+        try:
+            content = md_file.read_text(encoding="utf-8")
+            title_match = re.search(r'^title:\s*"?(.+?)"?\s*$', content, re.MULTILINE)
+            date_match = re.search(r'^pubDate:\s*"?(\d{4}-\d{2}-\d{2})', content, re.MULTILINE)
+            exc_match = re.search(r'^excerpt:\s*"?(.+?)"?\s*$', content, re.MULTILINE)
+            if not title_match or not date_match:
+                continue
+            if datetime.strptime(date_match.group(1), "%Y-%m-%d").date() >= cutoff:
+                metas.append({
+                    "title": title_match.group(1).strip(),
+                    "excerpt": (exc_match.group(1).strip() if exc_match else ""),
+                })
+        except Exception:
+            continue
+    return metas
+
+
+def review_duplicates(title: str, body: str, client) -> dict:
+    """既存記事と内容が重複・酷似していないかを判定する"""
+    metas = get_recent_articles_meta(90)
+    if not metas:
+        return {"verdict": "ok", "issues": []}
+    listing = "\n".join(f"- {m['title']}\n  要約: {m['excerpt']}" for m in metas)
+    prompt = f"""あなたは金融ブログの編集者です。新しい記事が、既存記事と内容的に重複していないか判定してください。
+
+タイトルの言い回しが違っても、**読者にとって同じ内容になっていれば重複**と判断します。
+同じニュースを別角度から扱っているだけ、既存記事の焼き直し、要点がほぼ同じ、といったものが該当します。
+一方、同じ制度を扱っていても、新しい事実（新たな発表・新しい数値・続報）が中心なら重複ではありません。
+
+判定基準：
+- "ok"    : 既存記事と十分に差別化されている
+- "minor" : 一部重なるが、新しい情報が主で公開してよい
+- "hold"  : 既存記事と実質的に同じ内容（公開を止める）
+
+次のJSONだけを出力してください。
+{{"verdict": "ok|minor|hold", "issues": ["重複する既存記事のタイトルと、どこが重なるか"]}}
+
+新しい記事のタイトル: {title}
+
+新しい記事の本文:
+---
+{body[:6000]}
+---
+
+既存記事の一覧（直近90日）:
+{listing}"""
+    try:
+        text = _call_review(client, MODEL_CHECKER, prompt, max_tokens=8000, effort="medium")
+        return _parse_verdict(text)
+    except Exception as e:
+        print(f"    ⚠️ 重複チェックエラー: {e}")
+        return {"verdict": "hold", "issues": [f"重複チェックが実行できませんでした: {e}"]}
+
+
+def review_editorial(title: str, body: str, category: str, client) -> dict:
+    """カテゴリの妥当性・NG表現・試験ポイントの適否を見る"""
+    prompt = f"""あなたは金融ブログ「FPのひとりごと」の編集者です。編集方針に沿っているか確認してください。
+
+確認項目：
+1. カテゴリが内容と合っているか。選べるのは次の8つだけです。
+   税務・税制改正 / 社会保険・年金 / NISA・iDeCo / 不動産・住宅 / 金融機関の動向 / FP試験情報 / リスク管理・保険 / 相続・事業承継
+2. 筆者の所属や勤務先が推測できる表現がないか（「金融機関の現場では」「お客さま」「当社」など）
+3. 「FP試験のポイント」セクションの扱い。FP技能検定の標準的な出題範囲に含まれる制度を解説しているか。
+   範囲外のニッチな制度・学術理論なのに試験ポイントを書いていないか。逆に、範囲内なのに書かれていないか
+4. 「FP試験に出題される」「頻出」など、出題実績の断定がないか
+5. 第三者の事例を、筆者自身が相談を受けたかのように書いていないか
+6. 記事本文にURLやリンクが書かれていないか
+
+判定基準：
+- "ok"    : 問題なし
+- "minor" : 表現やカテゴリの軽微な調整で足りる
+- "hold"  : 方針に反する記述があり、公開前に人の判断が必要
+
+次のJSONだけを出力してください。
+{{"verdict": "ok|minor|hold", "issues": ["指摘を1件ずつ"], "suggested_category": "より適切なカテゴリ名（変更不要ならnull）"}}
+
+記事タイトル: {title}
+設定されているカテゴリ: {category}
+
+記事本文:
+---
+{body}
+---"""
+    try:
+        text = _call_review(client, MODEL_CHECKER, prompt, max_tokens=8000, effort="medium")
+        result = _parse_verdict(text)
+        m = re.search(r'"suggested_category"\s*:\s*"([^"]+)"', text)
+        if m and m.group(1) in CATEGORY_KEYWORDS:
+            result["suggested_category"] = m.group(1)
+        return result
+    except Exception as e:
+        print(f"    ⚠️ 編集方針チェックエラー: {e}")
+        return {"verdict": "hold", "issues": [f"編集方針チェックが実行できませんでした: {e}"]}
+
+
+def run_reviews(title: str, body: str, category: str, pubdate_str: str, client) -> dict:
+    """3段階のレビューをまとめて実行し、公開可否を返す"""
+    print("    🔎 事実チェック中（web検索）...")
+    facts = review_facts(title, body, pubdate_str, client)
+    print(f"       → {facts['verdict']}")
+
+    print("    🔎 重複チェック中...")
+    dup = review_duplicates(title, body, client)
+    print(f"       → {dup['verdict']}")
+
+    print("    🔎 編集方針チェック中...")
+    edit = review_editorial(title, body, category, client)
+    print(f"       → {edit['verdict']}")
+
+    verdicts = [facts["verdict"], dup["verdict"], edit["verdict"]]
+    overall = "hold" if "hold" in verdicts else ("minor" if "minor" in verdicts else "ok")
+
+    lines = []
+    for label, res in (("事実", facts), ("重複", dup), ("編集方針", edit)):
+        for issue in res["issues"]:
+            lines.append(f"[{label}/{res['verdict']}] {issue}")
+
+    return {
+        "overall": overall,
+        "report": lines,
+        "suggested_category": edit.get("suggested_category"),
+    }
+
+
+def save_hold(title: str, body: str, category: str, keyword: str, report: list, note_body: str = "") -> None:
+    """公開を保留した記事を docs/review_hold/ に置く（サイトには出ない）"""
+    REVIEW_HOLD_DIR.mkdir(parents=True, exist_ok=True)
+    date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    slug = slugify(title) or hashlib.md5(keyword.encode()).hexdigest()[:8]
+    filepath = REVIEW_HOLD_DIR / f"{date_str}-{slug}.md"
+
+    report_text = "\n".join(f"- {line}" for line in report) or "- （指摘なし。レビューの実行に失敗した可能性があります）"
+    content = f"""# 【公開保留】{title}
+
+生成日: {date_str}
+カテゴリ案: {category}
+元トピック: {keyword}
+
+## レビューでの指摘
+
+{report_text}
+
+---
+
+## ブログ記事（案）
+
+{body}
+"""
+    if note_body:
+        content += f"\n---\n\n## note記事（案）\n\n{note_body}\n"
+
+    filepath.write_text(content, encoding="utf-8")
+    print(f"    ⛔ 公開保留: docs/review_hold/{filepath.name}")
+    for line in report:
+        print(f"       {line}")
+
+
 def save_article(title: str, body: str, category: str, keyword: str, date_warning: str = "") -> bool:
     slug = slugify(title)
     date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
@@ -515,7 +701,7 @@ excerpt: "{excerpt_escaped}"
 """
 
     if date_warning:
-        warning_comment = f"<!-- ⚠️ 自動チェック（Haiku）: {date_warning} -->\n\n"
+        warning_comment = f"<!-- ⚠️ 公開前レビューの指摘（軽微）: {date_warning} -->\n\n"
         body = warning_comment + body
 
     with open(filepath, "w", encoding="utf-8") as f:
@@ -523,7 +709,7 @@ excerpt: "{excerpt_escaped}"
 
     print(f"    ✅ 保存: {filename}")
     if date_warning:
-        print(f"    ⚠️ 日付要確認: {date_warning}")
+        print(f"    ⚠️ 軽微な指摘あり: {date_warning}")
     return True
 
 
@@ -549,6 +735,7 @@ def main():
     seen_titles = set()
     generated_keywords = []  # 生成済み記事のキーワード（重複テーマ検出用）
     generated = 0
+    held = 0  # レビューで公開保留になった件数
 
     for topic in topics:
         if generated >= MAX_ARTICLES_PER_RUN:
@@ -581,30 +768,39 @@ def main():
         body = generate_article(topic, title, client)
         if body:
             date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-            issue = check_date_consistency(body, date_str, client)
-            save_note = ""
-            if issue:
-                print(f"    ⚠️ 日付の疑いを検知、自動修正を試みます: {issue}")
-                fixed_body = fix_date_issue(body, date_str, issue, client)
-                if fixed_body:
-                    body = fixed_body
-                    save_note = f"日付の自動修正を実施済み（要ダブルチェック）。検知内容: {issue}"
-                else:
-                    save_note = f"日付の自動修正に失敗。要確認: {issue}"
-            if save_article(title, body, topic["category"], topic["title"], save_note):
-                recent_titles.append(title)
-                generated_keywords.append(topic["title"].lower())
-                generated += 1
+            category = topic["category"]
+
+            review = run_reviews(title, body, category, date_str, client)
 
             time.sleep(2)
             print(f"    📝 note下書き生成中...")
-            note_body = generate_note_article(topic, title, body, client)
-            if note_body:
-                save_note_draft(title, note_body, topic["title"])
+            note_body = generate_note_article(topic, title, body, client) or ""
+
+            if review["overall"] == "hold":
+                # 事実・重複・方針のいずれかに疑義あり。公開せず保留にする
+                save_hold(title, body, category, topic["title"], review["report"], note_body)
+                held += 1
+            else:
+                if review.get("suggested_category"):
+                    print(f"    🏷️ カテゴリを修正: {category} → {review['suggested_category']}")
+                    category = review["suggested_category"]
+
+                save_note = ""
+                if review["overall"] == "minor":
+                    save_note = " / ".join(review["report"])
+
+                if save_article(title, body, category, topic["title"], save_note):
+                    recent_titles.append(title)
+                    generated_keywords.append(topic["title"].lower())
+                    generated += 1
+                    if note_body:
+                        save_note_draft(title, note_body, topic["title"])
 
         time.sleep(3)
 
     print(f"\n🎉 完了: {generated}件のトレンド記事を生成しました")
+    if held:
+        print(f"⛔ {held}件を公開保留にしました（docs/review_hold/ を確認してください）")
 
 
 if __name__ == "__main__":
