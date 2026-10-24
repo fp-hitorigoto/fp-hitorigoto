@@ -49,20 +49,18 @@ RSS_FEEDS = [
         "category": "社会保険・年金",
     },
     # 金財（日本FP協会RSS廃止のため代替）
-    {
-        "url": "https://www.kinzai.or.jp/rss",
-        "source": "金財",
-        "category": "FP試験情報",
-    },
+    # 金財（きんざい）のRSSは廃止され、HTMLが返るようになったため2026-10-24に削除。
+    # 日本FP協会にもRSSは見当たらず、FP試験情報の自動収集元は現在なし。
     # 日本銀行（URL変更）
     {
         "url": "https://www.boj.or.jp/rss/whatsnew.xml",
         "source": "日本銀行",
         "category": "金融機関の動向",
     },
-    # 国土交通省（住宅・不動産・住宅ローン関連）
+    # 国土交通省 報道発表（住宅・不動産・住宅ローン関連）
+    # 旧 /rss/all.rss は404。2026-10-24に pressrelease.rdf へ変更
     {
-        "url": "https://www.mlit.go.jp/rss/all.rss",
+        "url": "https://www.mlit.go.jp/pressrelease.rdf",
         "source": "国土交通省",
         "category": "不動産・住宅",
     },
@@ -97,8 +95,9 @@ RSS_FEEDS = [
         "category": "相続・事業承継",
     },
     # 内閣府（経済・社会保障政策）
+    # 旧 /rss/news.xml は404。2026-10-24に news.rdf へ変更
     {
-        "url": "https://www.cao.go.jp/rss/news.xml",
+        "url": "https://www.cao.go.jp/rss/news.rdf",
         "source": "内閣府",
         "category": "税務・税制改正",
     },
