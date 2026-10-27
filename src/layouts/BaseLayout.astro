@@ -80,9 +80,19 @@ const ogImageURL = new URL(ogImage ?? `${import.meta.env.BASE_URL}ogp.png`, Astr
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
         <div>
           <h3 class="font-bold text-white mb-2">FPのひとりごと</h3>
-          <p class="text-sm leading-relaxed">
-            FP1級ファイナンシャルプランナーが、税務・年金・NISA・不動産など、お金にまつわる最新情報をわかりやすくお届けします。
-          </p>
+          <div class="flex items-start gap-3">
+            <img
+              src={`${import.meta.env.BASE_URL}owl_smile.png`}
+              alt=""
+              width="72"
+              height="77"
+              loading="lazy"
+              class="w-16 h-auto shrink-0 hidden sm:block"
+            />
+            <p class="text-sm leading-relaxed">
+              FP1級ファイナンシャルプランナーが、税務・年金・NISA・不動産など、お金にまつわる最新情報をわかりやすくお届けします。
+            </p>
+          </div>
         </div>
         <div>
           <h3 class="font-bold text-white mb-2">カテゴリ</h3>
@@ -120,6 +130,7 @@ const ogImageURL = new URL(ogImage ?? `${import.meta.env.BASE_URL}ogp.png`, Astr
       </div>
       <div class="border-t border-navy-700 pt-4 text-xs text-center text-navy-300">
         <p>掲載情報は各公式機関の発表をもとにしています。投資判断は自己責任でお願いします。</p>
+        <p class="mt-1">サイト内のイラストはAIで生成しています。</p>
         <p class="mt-1">&copy; {new Date().getFullYear()} FPのひとりごと</p>
       </div>
     </div>
