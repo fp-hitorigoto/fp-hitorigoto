@@ -14,7 +14,7 @@ import feedparser
 import anthropic
 
 # 公開前レビューはトレンド生成スクリプトと共用する
-from fetch_trends_and_generate import run_reviews, save_hold
+from fetch_trends_and_generate import run_reviews, save_hold, _extract_text
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -532,10 +532,10 @@ def should_generate_article(item: dict, client: anthropic.Anthropic) -> bool:
     try:
         message = client.messages.create(
             model="claude-sonnet-5-5",
-            max_tokens=100,
+            max_tokens=2000,  # Claude 5は思考トークンもこの枠を使うため余裕を持たせる
             messages=[{"role": "user", "content": prompt}],
         )
-        answer = message.content[0].text.strip()
+        answer = _extract_text(message)
         print(f"    🤖 判断: {answer[:80]}")
         return answer.startswith("記事化する")
     except Exception as e:
@@ -601,11 +601,11 @@ FP1級資格を持ち、金融機関でマネジメント職をしているベ�
     try:
         message = client.messages.create(
             model="claude-haiku-5-5",  # コスト最適化
-            max_tokens=2000,
+            max_tokens=16000,  # 同上
             messages=[{"role": "user", "content": user_prompt}],
             system=system_prompt,
         )
-        return message.content[0].text
+        return _extract_text(message)
     except Exception as e:
         print(f"    ❌ 記事生成エラー: {e}")
         return None

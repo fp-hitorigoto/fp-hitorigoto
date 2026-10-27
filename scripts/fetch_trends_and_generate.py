@@ -204,10 +204,10 @@ def should_generate_article(topic: dict, recent_titles: list, client: anthropic.
     try:
         message = client.messages.create(
             model=MODEL_TRIAGE,
-            max_tokens=300,
+            max_tokens=2000,  # Claude 5は思考トークンもこの枠を使うため余裕を持たせる
             messages=[{"role": "user", "content": prompt}],
         )
-        answer = message.content[0].text.strip()
+        answer = _extract_text(message)
         print(f"    🤖 判断: {answer[:120]}")
 
         if not answer.startswith("記事化する"):
@@ -286,11 +286,11 @@ FP1級資格を持ち、金融機関でマネジメント職をしているベ�
     try:
         message = client.messages.create(
             model=MODEL_WRITER,
-            max_tokens=2500,
+            max_tokens=16000,  # 同上
             messages=[{"role": "user", "content": user_prompt}],
             system=system_prompt,
         )
-        return message.content[0].text
+        return _extract_text(message)
     except Exception as e:
         print(f"    ❌ 記事生成エラー: {e}")
         return None
@@ -357,11 +357,11 @@ https://www.youtube.com/@hinomaru_study"""
     try:
         message = client.messages.create(
             model=MODEL_WRITER,
-            max_tokens=3000,
+            max_tokens=16000,  # 同上
             messages=[{"role": "user", "content": user_prompt}],
             system=system_prompt,
         )
-        return message.content[0].text + note_footer
+        return _extract_text(message) + note_footer
     except Exception as e:
         print(f"    ❌ note記事生成エラー: {e}")
         return None
