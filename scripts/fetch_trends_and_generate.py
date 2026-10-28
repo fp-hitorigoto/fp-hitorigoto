@@ -36,7 +36,8 @@ MODEL_REVIEWER = "claude-opus-5-5"     # 事実チェック（web検索あり）
 MODEL_CHECKER = "claude-sonnet-5-5"    # 重複チェック・編集方針チェック
 
 # web検索ツール（Opus 5.5 / Sonnet 5.5 等で利用可）
-WEB_SEARCH_TOOL = {"type": "web_search_20260209", "name": "web_search", "max_uses": 8}
+# 検索結果は入力トークンの大半を占めるため、回数を絞ってコストを抑える
+WEB_SEARCH_TOOL = {"type": "web_search_20260209", "name": "web_search", "max_uses": 3}
 
 # ソース一覧
 TREND_SOURCES = [
@@ -435,7 +436,7 @@ def _call_review(client, model, prompt, use_search=False, max_tokens=16000, effo
 
     messages = [{"role": "user", "content": prompt}]
     collected = []
-    for _ in range(6):  # pause_turn の継続は最大6回まで
+    for _ in range(3):  # pause_turn の継続は最大3回まで（再送のたび履歴全体が入力に積まれる）
         message = client.messages.create(messages=messages, **kwargs)
         collected.append(_extract_text(message))
         if message.stop_reason != "pause_turn":
@@ -469,6 +470,10 @@ def review_facts(title: str, body: str, pubdate_str: str, client) -> dict:
     prompt = f"""あなたは金融ブログの校閲者です。今日は{pubdate_str}です。
 以下の記事を、**web検索を使って実際に裏取りしながら**検証してください。推測で判断せず、必ず検索して確かめること。
 
+**検索は最大3回までしか使えません。** 記事の結論を左右する重要な点から順に、検索の回数を配分してください。
+1回の検索でなるべく多くの論点を確かめられるよう、検索語を工夫すること。
+検索しきれなかった点は、無理に断定せず「未確認」として指摘に含めてください。
+
 特に次の点を重点的に確認します。
 1. 統計・制度の数値（金額、率、枠、指数など）が一次情報と一致しているか
 2. 日付・年号・時制が実際の出来事と合っているか。記事中の「◯◯年時点」が公開日と整合しているか
@@ -492,7 +497,7 @@ def review_facts(title: str, body: str, pubdate_str: str, client) -> dict:
 {body}
 ---"""
     try:
-        text = _call_review(client, MODEL_REVIEWER, prompt, use_search=True)
+        text = _call_review(client, MODEL_REVIEWER, prompt, use_search=True, effort="medium")
         return _parse_verdict(text)
     except Exception as e:
         print(f"    ⚠️ 事実チェックエラー: {e}")
@@ -738,7 +743,9 @@ def main():
     held = 0  # レビューで公開保留になった件数
 
     for topic in topics:
-        if generated >= MAX_ARTICLES_PER_RUN:
+        # 保留になった記事も1回分として数える。数えないとトピックが尽きるまで
+        # 生成を繰り返し、レビュー費用が何倍にも膨らむため
+        if generated + held >= MAX_ARTICLES_PER_RUN:
             break
 
         # 同一実行内での重複スキップ
