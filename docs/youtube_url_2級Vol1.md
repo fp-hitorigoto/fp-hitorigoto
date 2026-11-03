@@ -5,6 +5,10 @@ YouTube Studio から取得（2026-11-03）。ショートの説明文で本編�
 **再生リスト（全14曲）**
 `https://www.youtube.com/playlist?list=PLcRF7zLO1qao`
 
+**まとめ動画（全14曲・55分44秒）**
+`https://youtu.be/hcereTX7J3k` … 2026/11/09 17:00 公開予約
+再生リスト：`歌で覚えるFP2級 まとめ（全曲連続）`（3級と同じく、まとめ専用の再生リスト）
+
 | # | ショートの曲 | 本編URL | 公開日 |
 |---|---|---|---|
 | 1 | My Decades, My Choice | https://youtu.be/GJ2T2md0JDM | 10/26 公開済 |
