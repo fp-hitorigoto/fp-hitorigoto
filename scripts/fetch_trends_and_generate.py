@@ -29,6 +29,12 @@ REVIEW_HOLD_DIR = PROJECT_ROOT / "docs" / "review_hold"
 
 MAX_ARTICLES_PER_RUN = 1  # 1日1本に制限
 
+# 公開前レビュー（事実・重複・編集方針の3段階チェック）のオン／オフ
+# 2026-11-05：オフ（既定）。生成した記事はそのまま公開し、しゅうぞうさんの声がけで
+# Claudeが内容を確認・修正する運用に戻した。レビュー機能は残してあり、
+# 環境変数 REVIEW_ENABLED=1 を付けて実行すればいつでも再開できる。
+REVIEW_ENABLED = os.environ.get("REVIEW_ENABLED", "0") == "1"
+
 # 使用モデル
 MODEL_TRIAGE = "claude-haiku-5-5"      # 記事化するかの判定（呼び出し回数が多いので軽量モデル）
 MODEL_WRITER = "claude-sonnet-5-5"     # 記事本文の執筆
@@ -608,7 +614,9 @@ def review_editorial(title: str, body: str, category: str, client) -> dict:
 
 
 def run_reviews(title: str, body: str, category: str, pubdate_str: str, client) -> dict:
-    """3段階のレビューをまとめて実行し、公開可否を返す"""
+    """3段階のレビューをまとめて実行し、公開可否を返す。REVIEW_ENABLED が無効なら何もせず公開扱い"""
+    if not REVIEW_ENABLED:
+        return {"overall": "ok", "report": [], "suggested_category": None}
     print("    🔎 事実チェック中（web検索）...")
     facts = review_facts(title, body, pubdate_str, client)
     print(f"       → {facts['verdict']}")
