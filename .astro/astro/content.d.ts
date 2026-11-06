@@ -1650,6 +1650,13 @@ declare module 'astro:content' {
   collection: "articles";
   data: InferEntrySchema<"articles">
 } & { render(): Render[".md"] };
+"2026-11-06-kodomo-nisa.md": {
+	id: "2026-11-06-kodomo-nisa.md";
+  slug: "2026-11-06-kodomo-nisa";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
 "2026-11-06-trends-4feb063f3e.md": {
 	id: "2026-11-06-trends-4feb063f3e.md";
   slug: "2026-11-06-trends-4feb063f3e";
