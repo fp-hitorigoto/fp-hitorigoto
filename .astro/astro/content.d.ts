@@ -1671,6 +1671,13 @@ declare module 'astro:content' {
   collection: "articles";
   data: InferEntrySchema<"articles">
 } & { render(): Render[".md"] };
+"2026-11-08-trends-ffad3214a3.md": {
+	id: "2026-11-08-trends-ffad3214a3.md";
+  slug: "2026-11-08-trends-ffad3214a3";
+  body: string;
+  collection: "articles";
+  data: InferEntrySchema<"articles">
+} & { render(): Render[".md"] };
 "boj-rate-hike-mortgage-2026.md": {
 	id: "boj-rate-hike-mortgage-2026.md";
   slug: "boj-rate-hike-mortgage-2026";
