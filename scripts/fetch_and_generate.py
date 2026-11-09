@@ -14,7 +14,7 @@ import feedparser
 import anthropic
 
 # 公開前レビューはトレンド生成スクリプトと共用する
-from fetch_trends_and_generate import run_reviews, save_hold, _extract_text
+from fetch_trends_and_generate import run_reviews, save_hold, _extract_text, extract_excerpt
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
