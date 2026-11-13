@@ -94,6 +94,12 @@ RSS_FEEDS = [
         "source": "信託協会",
         "category": "相続・事業承継",
     },
+    # 財務省（税制改正・国債・為替など）。2026-11-13追加
+    {
+        "url": "https://www.mof.go.jp/news.rss",
+        "source": "財務省",
+        "category": "税務・税制改正",
+    },
     # 内閣府（経済・社会保障政策）
     # 旧 /rss/news.xml は404。2026-10-24に news.rdf へ変更
     {
