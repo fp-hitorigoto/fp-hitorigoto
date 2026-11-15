@@ -694,7 +694,28 @@ Vol.1でも「確定したクイズがサビにない」ケースが続出した
 説明文はすべて**サムネイルのフックと同じ論点**にそろえた。
 サムネイル・動画・説明文で言っていることが一致する。
 
-⚠️公開日は未記録。確認して追記すること。
+### ✅ 公開日が判明（2026-11-15にYouTube Studioで確認）
+**11/10〜11/24、毎日1本ずつ17:00公開。全15本が出そろうのは11月24日。**
+
+| 日 | 曲 |
+|---|---|
+| 11/10 | Inside or Outside |
+| 11/11 | What Stays, What Shrinks |
+| 11/12 | Anchor and Tide |
+| 11/13 | Wait Longer, Wait Shorter |
+| 11/14 | Through the Company Gate |
+| 11/15 | The Ruler That Changed Everything |
+| 11/16 | The Day of Settlement |
+| 11/17 | The Formula and The Shield |
+| 11/18 | Four Steps |
+| 11/19 | Under the 80 Line |
+| 11/20 | Four Tiers of Shaking |
+| 11/21 | Full Speed, Full Coverage |
+| 11/22 | Home or Away |
+| 11/23 | The Untaxed Loss |
+| 11/24 | What We Protect |
+
+⚠️**Vol.1のショートも毎日投稿している**（11/10開始）。本編とショートが同じ日に出る形。
 
 ### 📌 全15本が公開されたあとにやること
 1. 再生リストが投稿順に並んでいるか確認
