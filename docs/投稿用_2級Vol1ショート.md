@@ -134,7 +134,7 @@ https://www.youtube.com/playlist?list=PLcRF7zLO1qao
 - **分野タグ**：#6つの係数 #係数表
 - **本編**：https://youtu.be/qniQUI7hN9g
 
-### 7. For Your Someday（奨学金）
+### 7. For Your Someday（奨学金）✅投稿済み（2026-11-16／4プラットフォーム）
 - **タイトル**：第一種奨学金、利息はつく？つかない？【FP2級】
 - **答え**：第一種は無利息、第二種は利息がつく
 - **一言解説**：第二種はそのぶん選べる幅が広い。教育ローンとの併用もできる
