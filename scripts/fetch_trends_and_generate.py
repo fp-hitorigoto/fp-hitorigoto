@@ -148,6 +148,7 @@ def fetch_all_topics() -> list:
                     "description": description[:300],
                     "source_name": source["name"],
                     "source_type": source["type"],
+                    "link": entry.get("link", "").strip(),
                     "category": guess_category(text),
                 })
 
@@ -677,7 +678,8 @@ def save_hold(title: str, body: str, category: str, keyword: str, report: list, 
         print(f"       {line}")
 
 
-def save_article(title: str, body: str, category: str, keyword: str, date_warning: str = "") -> bool:
+def save_article(title: str, body: str, category: str, keyword: str, date_warning: str = "",
+                 news_source: str = "", news_link: str = "") -> bool:
     slug = slugify(title)
     date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     filename = f"{date_str}-{slug}.md"
@@ -705,12 +707,20 @@ def save_article(title: str, body: str, category: str, keyword: str, date_warnin
     title_escaped = title.replace('"', '\\"')
     excerpt_escaped = excerpt.replace('"', '\\"')
 
+    # ニュース由来の記事のみ、取得元のニュース名とURLを情報源欄に入れる
+    # （URLはRSSから取得したものだけ。AIが生成した文字列は使わない）
+    source_label = "FPひとりごと編集部"
+    source_url_line = ""
+    if news_source and news_link.startswith(("http://", "https://")):
+        source_label += f"（参考：{news_source}）"
+        source_url_line = f'sourceUrl: "{news_link}"\n'
+
     frontmatter = f"""---
 title: "{title_escaped}"
 pubDate: {date_str}
 category: "{category}"
-source: "FPひとりごと編集部"
-tags: {json.dumps(tags, ensure_ascii=False)}
+source: "{source_label}"
+{source_url_line}tags: {json.dumps(tags, ensure_ascii=False)}
 excerpt: "{excerpt_escaped}"
 ---
 
@@ -807,7 +817,9 @@ def main():
                 if review["overall"] == "minor":
                     save_note = " / ".join(review["report"])
 
-                if save_article(title, body, category, topic["title"], save_note):
+                if save_article(title, body, category, topic["title"], save_note,
+                                 topic["source_name"] if topic.get("source_type") == "news" else "",
+                                 topic.get("link", "")):
                     recent_titles.append(title)
                     generated_keywords.append(topic["title"].lower())
                     generated += 1
