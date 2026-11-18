@@ -642,6 +642,7 @@ def save_article(item: dict, body: str, date_warning: str = "") -> bool:
         "FP試験情報": ["FP試験", "資格"],
         "相続・事業承継": ["相続", "事業承継"],
         "リスク管理・保険": ["保険", "リスク管理"],
+        "家計・ライフプラン": ["家計", "ライフプラン"],
     }
     tags = tag_map.get(item["category"], [])
 

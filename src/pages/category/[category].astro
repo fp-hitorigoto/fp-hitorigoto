@@ -12,11 +12,12 @@ const categories = [
   'FP試験情報',
   'リスク管理・保険',
   '相続・事業承継',
+  '家計・ライフプラン',
 ] as const;
 
 export async function getStaticPaths() {
   const allArticles = await getCollection('articles');
-  const cats = ['税務・税制改正', '社会保険・年金', 'NISA・iDeCo', '不動産・住宅', '金融機関の動向', 'FP試験情報', 'リスク管理・保険', '相続・事業承継'];
+  const cats = ['税務・税制改正', '社会保険・年金', 'NISA・iDeCo', '不動産・住宅', '金融機関の動向', 'FP試験情報', 'リスク管理・保険', '相続・事業承継', '家計・ライフプラン'];
   return cats.map((category) => ({
     params: { category },
     props: {
@@ -39,6 +40,7 @@ const descriptionMap: Record<string, string> = {
   'FP試験情報': 'FP2級・1級の試験情報、学習ポイント、過去問解説などをまとめています。',
   'リスク管理・保険': '生命保険・損害保険・医療保険の選び方や最新動向をFP目線で解説します。',
   '相続・事業承継': '相続税・遺産分割・事業承継対策など、資産の引き継ぎに関する情報をお届けします。',
+  '家計・ライフプラン': '教育費・住まい・老後・車・介護など、暮らしと家計のお金の考え方をFP目線で解説します。',
 };
 ---
 

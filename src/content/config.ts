@@ -14,6 +14,7 @@ const articles = defineCollection({
       'FP試験情報',
       'リスク管理・保険',
       '相続・事業承継',
+      '家計・ライフプラン',
     ]),
     source: z.string(),
     sourceUrl: z.string().url().or(z.literal('')).optional(),
