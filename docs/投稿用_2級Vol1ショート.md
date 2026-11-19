@@ -155,7 +155,7 @@ https://www.youtube.com/playlist?list=PLcRF7zLO1qao
 - **分野タグ**：#住宅ローン #繰上げ返済
 - **本編**：https://youtu.be/-kb8SRtXxVI
 
-### 10. Promise or Contribution（DBとDC）
+### 10. Promise or Contribution（DBとDC）✅投稿済み（2026-11-19／4プラットフォーム）
 - **タイトル**：DBとDC、何を約束している？【FP2級 企業年金】
 - **答え**：DBは給付（Benefit）、DCは拠出（Contribution）を約束
 - **一言解説**：運用リスクを負うのはDBが会社、DCは本人。頭文字で覚える
