@@ -190,7 +190,7 @@ https://www.youtube.com/playlist?list=PLcRF7zLO1qao
 - **分野タグ**：#健康保険 #任意継続
 - **本編**：https://youtu.be/nJpAbG4mTDY
 
-### 12. Still Standing（障害年金）
+### 12. Still Standing（障害年金）✅投稿済み（2026-11-21／4プラットフォーム）
 - **タイトル**：障害基礎年金は何級まで？厚生年金は？【FP2級】
 - **答え**：基礎は1級・2級、厚生は3級まで
 - **一言解説**：3級には基礎の上乗せがない。子がいれば基礎に加算がつく
