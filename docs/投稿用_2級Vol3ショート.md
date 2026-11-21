@@ -37,7 +37,7 @@ Vol.1・Vol.2のショートと同じ型。
 <本編URL>
 
 ▼Vol.3 金融資産運用の再生リスト
-（Vol.3の再生リストURLをここに）
+https://www.youtube.com/playlist?list=PLMeVP2dLfEFA
 
 役に立ったらチャンネル登録と高評価をお願いします！
 
