@@ -11,6 +11,11 @@
 | **Vol.3 金融資産運用** | 15 | https://www.youtube.com/playlist?list=PLMeVP2dLfEFA |
 | まとめ（全曲連続） | 2 | https://www.youtube.com/playlist?list=PLDQNZ0PLMlI4 |
 
+## 相続アドバイザー2級
+| 再生リスト | 本数 | URL |
+|---|---|---|
+| 暗記ソング | 10 | https://www.youtube.com/playlist?list=PLG64KD144adI |
+
 ## 3級
 | 再生リスト | 本数 | URL |
 |---|---|---|
