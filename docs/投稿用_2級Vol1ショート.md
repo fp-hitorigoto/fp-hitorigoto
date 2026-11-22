@@ -197,7 +197,7 @@ https://www.youtube.com/playlist?list=PLcRF7zLO1qao
 - **分野タグ**：#障害年金 #公的年金
 - **本編**：https://youtu.be/jRQGVaPfhZg
 
-### 13. Two Roads to Capital（中小法人の資金計画）
+### 13. Two Roads to Capital（中小法人の資金計画）✅投稿済み（2026-11-22／4プラットフォーム）
 - **タイトル**：信用力が足りない中小企業を支える仕組みは？【FP2級】
 - **答え**：信用保証協会の保証付き融資
 - **一言解説**：限られた投資家に社債を出すのが少人数私募債。公募より手続きが軽い
