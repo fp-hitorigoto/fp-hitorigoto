@@ -99,7 +99,10 @@ const colorMap: Record<string, string> = {
 
   <!-- クイズセクション -->
   <section class="mb-10">
-    <h2 class="text-lg font-bold text-navy-800 mb-4">🎯 クイズで腕試し</h2>
+    <div class="flex items-baseline justify-between mb-4">
+      <h2 class="text-lg font-bold text-navy-800">🎯 クイズで腕試し</h2>
+      <a href={`${import.meta.env.BASE_URL}apps/`} class="text-sm text-navy-600 hover:text-gold-600 transition-colors">まとめて見る →</a>
+    </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <a
         href="https://fp3-quiz.vercel.app"
