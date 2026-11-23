@@ -7524,3 +7524,44 @@ https://fp-hitorigoto.github.io/fp-hitorigoto/apps/
 - **次は11/24の③ 実質負担者は誰／④ 遺言執行者がいるならば**
 
 📌試験は12/6。11/27に全10本を出し切れば、試験まで9日残る。
+
+---
+
+## 追記：2026-11-23 ⑮（CapCut用のSRTを作った）
+
+PR用ショート1本目の字幕ファイル。
+`~/Downloads/PR用ショート試作/PR試作_iPhone_遺留分_v6.srt`（11個）
+
+⚠️**CapCutは .lrc を読み込めない。.srt を使う。**
+　 LRCは曲用で終了時刻がないため、字幕には向かない。
+
+### 字幕の決まり（今回明文化した）
+
+| | |
+|---|---|
+| 1行 | 15文字以内 |
+| 1つの字幕 | 最長2行 |
+| 表示時間 | 最低0.8秒（カウントダウンの数字は1.0秒） |
+| 重なり | 前の字幕の終わりより後から始める |
+
+### 検算スクリプト（再利用する）
+
+```python
+import re
+s=open('字幕.srt',encoding='utf-8').read().strip()
+blocks=[b.split('\n') for b in s.split('\n\n')]
+def sec(t):
+    h,m,rest=t.split(':'); ss,ms=rest.split(',')
+    return int(h)*3600+int(m)*60+int(ss)+int(ms)/1000
+prev_end=0
+for b in blocks:
+    n=b[0]; st,en=b[1].split(' --> '); lines=b[2:]
+    d=sec(en)-sec(st); mx=max(len(l) for l in lines)
+    print(f"{n:>3}  {d:4.1f}s  {mx:>2}字  {len(lines)}行  {' / '.join(lines)}")
+    if sec(st)<prev_end: print('  ⚠️重なり')
+    if d<0.8: print('  ⚠️表示が短い')
+    if mx>15: print('  ⚠️1行が長い')
+    prev_end=sec(en)
+```
+
+v6は**11個すべて問題なし**。最後の終わりは21.7秒（動画は21.8秒）。
