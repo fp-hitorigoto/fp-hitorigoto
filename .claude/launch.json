@@ -4,8 +4,23 @@
     {
       "name": "astro-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
       "port": 4321
+    },
+    {
+      "name": "quiz-apps",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8777",
+        "--directory",
+        "/private/tmp/claude-501/-Users-ohatamasanori--claude-spares-spare-Fpp7hC/4ff6521e-a2be-4057-afbe-200c25efc9f1/scratchpad/preview"
+      ],
+      "port": 8777
     }
   ]
 }
