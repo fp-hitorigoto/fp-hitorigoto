@@ -42,11 +42,15 @@ const songs3 = [
   { vol: 'Vol.6', name: '相続・事業承継', url: 'https://www.youtube.com/playlist?list=PLes7WJbxNpJQ' },
 ];
 
+// from … 公開開始日。その日が来るまではリンクにせず「公開予定」と出す。
+// ビルドし直さなくても切り替わるよう、クライアント側でも日付を見ている。
 const songs2 = [
-  { vol: 'Vol.1', name: 'ライフプランニングと資金計画', url: 'https://www.youtube.com/playlist?list=PLcRF7zLO1qao' },
-  { vol: 'Vol.2', name: 'リスク管理', url: 'https://www.youtube.com/playlist?list=PLYO7tILmVGoo' },
-  { vol: 'Vol.3', name: '金融資産運用', url: 'https://www.youtube.com/playlist?list=PLMeVP2dLfEFA' },
+  { vol: 'Vol.1', name: 'ライフプランニングと資金計画', url: 'https://www.youtube.com/playlist?list=PLcRF7zLO1qao', from: '' },
+  { vol: 'Vol.2', name: 'リスク管理', url: 'https://www.youtube.com/playlist?list=PLYO7tILmVGoo', from: '' },
+  { vol: 'Vol.3', name: '金融資産運用', url: 'https://www.youtube.com/playlist?list=PLMeVP2dLfEFA', from: '2026-11-26' },
 ];
+
+const today = new Date().toISOString().slice(0, 10);
 
 const description = 'FP3級・2級の過去問クイズと用語集を無料で公開しています。登録もインストールも不要。学習ソングの再生リストもここからどうぞ。';
 ---
@@ -116,15 +120,27 @@ const description = 'FP3級・2級の過去問クイズと用語集を無料で�
     <h3 class="text-sm font-bold text-gray-700 mb-2">FP2級（公開中の巻）</h3>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
       {songs2.map((s) => (
-        <a
-          href={s.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="border border-gray-200 rounded-lg px-4 py-3 bg-white hover:bg-gray-50 transition-colors flex items-center gap-3"
-        >
-          <span class="text-xs font-bold text-navy-700 shrink-0">{s.vol}</span>
-          <span class="text-sm">{s.name}</span>
-        </a>
+        s.from && today < s.from ? (
+          <div
+            class="border border-gray-200 rounded-lg px-4 py-3 bg-gray-50 text-gray-400 flex items-center gap-3"
+            data-song-from={s.from}
+            data-song-url={s.url}
+          >
+            <span class="text-xs font-bold shrink-0">{s.vol}</span>
+            <span class="text-sm">{s.name}</span>
+            <span class="text-xs ml-auto shrink-0">{s.from.replace('2026-', '').replace('-', '/')} 公開</span>
+          </div>
+        ) : (
+          <a
+            href={s.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="border border-gray-200 rounded-lg px-4 py-3 bg-white hover:bg-gray-50 transition-colors flex items-center gap-3"
+          >
+            <span class="text-xs font-bold text-navy-700 shrink-0">{s.vol}</span>
+            <span class="text-sm">{s.name}</span>
+          </a>
+        )
       ))}
     </div>
     <p class="text-xs text-gray-500 leading-relaxed">
@@ -173,5 +189,22 @@ const description = 'FP3級・2級の過去問クイズと用語集を無料で�
       <div class="text-xs mt-1 opacity-75">税制改正・年金・NISA・不動産などの解説記事</div>
     </a>
   </section>
+
+  <script is:inline>
+    // 公開日が来たら、ビルドし直さなくてもリンクに変わるようにする
+    document.querySelectorAll('[data-song-from]').forEach((el) => {
+      const today = new Date().toISOString().slice(0, 10);
+      if (today < el.dataset.songFrom) return;
+      const a = document.createElement('a');
+      a.href = el.dataset.songUrl;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.className = 'border border-gray-200 rounded-lg px-4 py-3 bg-white hover:bg-gray-50 transition-colors flex items-center gap-3';
+      const vol = el.querySelector('span');
+      a.innerHTML = '<span class="text-xs font-bold text-navy-700 shrink-0">' + vol.textContent + '</span>' +
+        '<span class="text-sm">' + vol.nextElementSibling.textContent + '</span>';
+      el.replaceWith(a);
+    });
+  </script>
 
 </BaseLayout>
